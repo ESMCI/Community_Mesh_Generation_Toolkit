@@ -16,10 +16,7 @@ module SE_Element_mod
 !     values used to solve the primitive equations. They were also modified 
 !     to try and introduce some form of sanity to the formatting. The use of 
 !     these modules is isolated to the Init_BASEelem() routine, which follows 
-!     the step by step calls in the initialization of CAM-SE. The base element
-!     values are augmented with additional information needed to implement
-!     transformations between the Sphere and the reference element 
-!     (e.g. transformation of 2nd rank tensor, Christoffel symbols, etc..)
+!     the step by step calls in the initialization of CAM-SE.
 !
 ! VERSION: 1.0 
 !
@@ -183,6 +180,9 @@ contains
     !              are copied to initialize SEelem  which contain
     !              only the essential components needed for the differential 
     !              operators.
+    !
+    !              If the optional Contol Volume datastructure is present, 
+    !              the appropriate values are calculated and returned.
     !===========================================================================
     use SE_Options ,only: SEoptions_t
     use element_mod,only: element_t
@@ -202,7 +202,6 @@ contains
     ! Initialize elem() data structure from CAM-SE base code
     !----------------------------------------------------------
     call Init_BASEelem(IO_SEopt,elem)
-
 
     !===========================================================
     ! All CAM-SE initializations are now complete. Allocate and
