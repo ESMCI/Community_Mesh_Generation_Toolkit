@@ -30,7 +30,7 @@ module mass_matrix_mod
 contains
   !==================================================================
   subroutine init_mass_matrix_mod(I_SEopt)
-    ! PFC: Hack to set global option values
+    ! Set global option values
     !--------------------------------------
     use SE_Options,only: SEoptions_t
     ! Passed Variables
@@ -38,8 +38,6 @@ contains
     type(SEoptions_t),intent(in):: I_SEopt
 
     nelemd          = I_SEopt%nelemd
-
-   print *,' PFC: nelemd=',nelemd,I_SEopt%nelemd
 
     ! End Routine
     !-------------

@@ -9,7 +9,6 @@ module metagraph_mod
   use SE_Constants ,only: int_kind
   use err_exit     ,only: iulog
   use gridgraph_mod,only: gridvertex_t,gridedge_t,allocate_gridvertex_nbrs,assignment ( = )
-!PFC  use pio_types    ! _EXTERNAL
 
   ! Set all Global values and routines to private by default
   ! and then explicitly set their exposure
@@ -322,7 +321,6 @@ contains
     ! initMetaGraph:
     !
     !=============================================================================
-!PFC    use ll_mod       ,only: root_t,LLSetEdgeCount,LLFree,LLInsertEdge,LLGetEdgeCount,LLFindEdge
     use gridgraph_mod,only: GridEdge_type, printGridVertex
     ! 
     ! Passed Variables
@@ -344,7 +342,6 @@ contains
     integer            :: nedge_active,enum
     logical            :: found
     integer            :: iTail, iHead, wgtP
-!PFC    type(root_t)       :: mEdgeList ! root_t = C++ std::set<std::pair<int,int> >
     logical            :: Verbose = .FALSE.
     logical            :: Debug   = .FALSE.
 
@@ -355,19 +352,13 @@ contains
     nelem      = SIZE(GridVertex)
     nelem_edge = SIZE(GridEdge  )
 
-!PFC    mEdgeList%number = ThisProcessorNumber
-!PFC    NULLIFY(mEdgeList%first)
-!PFC    call LLSetEdgeCount(0)
-
     do i0=1,nelem_edge
       tail_processor_number = GridEdge(i0)%tail%processor_number
       head_processor_number = GridEdge(i0)%head%processor_number
       if((tail_processor_number.eq.ThisProcessorNumber).or.  &
          (head_processor_number.eq.ThisProcessorNumber)      ) then 
-!PFC        call LLInsertEdge(mEdgeList,tail_processor_number,head_processor_number,eNum)
       endif
     end do
-!PFC    call LLGetEdgeCount(nedges)
 
     NULLIFY(MetaVertex%edges)
         
@@ -445,7 +436,6 @@ contains
       !-----------------------------------------------
       head_processor_number = GridEdge(i0)%head%processor_number
       tail_processor_number = GridEdge(i0)%tail%processor_number
-!PFC      call LLFindEdge(mEdgeList,tail_processor_number,head_processor_number,j0,found)
       if(found) then 
         !  Increment the number of grid edges contained in the grid edge
         !  and setup the pointers
@@ -501,7 +491,6 @@ contains
     do i0=1,nelem_edge
       head_processor_number = GridEdge(i0)%head%processor_number
       tail_processor_number = GridEdge(i0)%tail%processor_number
-!PFC      call LLFindEdge(mEdgeList,tail_processor_number,head_processor_number,j0,found)
       if(found) then 
         MetaVertex%edges(j0)%members(icount(j0)) = GridEdge(i0)
         if((icount(j0)+1).le.MetaVertex%edges(j0)%nmembers) then
@@ -525,8 +514,6 @@ contains
       write(iulog,*)'initmetagrap: Before last call to PrintMetaVertex'
       call PrintMetaVertex(MetaVertex)
     endif
-
-!PFC    call LLFree(mEdgeList)
 
 90  format('EDGE #',I2,2x,'TYPE ',I1,2x,'Processor Numbers ',I2,' ---> ',I2)
 100 format(10x,I2,1x,'(',I1,') ---> ',I2,1x,'(',I1,')')

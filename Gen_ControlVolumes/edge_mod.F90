@@ -7,7 +7,6 @@ module edge_mod
   ! Useful modules
   !----------------
   use SE_Constants  ,only: int_kind, log_kind, real_kind
-!PFC  use perf_mod      ,only: t_startf, t_stopf ! _EXTERNAL
   use err_exit      ,only: endrun
   use thread_mod    ,only: omp_get_num_threads, omp_get_thread_num
 
@@ -227,7 +226,7 @@ module edge_mod
 contains
   !==================================================================
   subroutine init_edge_mod(I_SEopt)
-    ! PFC: Hack to set global option values
+    ! Set global option values
     !--------------------------------------
     use SE_Options,only: SEoptions_t
     ! Passed Variables
@@ -568,7 +567,6 @@ contains
     integer:: is,ie,in,iw
     integer:: ii,kk,ir,ll
 
-!PFC    call t_startf('edge_pack')
     if(.not. threadsafe) then
 #if (! defined ELEMENT_OPENMP)
 !$OMP BARRIER
@@ -708,8 +706,6 @@ contains
         end do
       endif
     end do
-
-!PFC    call t_stopf('edge_pack')
 
     ! End Routine 
     !-------------
@@ -890,7 +886,6 @@ contains
     integer:: is,ie,in,iw
     integer:: ii,kk,ll
 
-!PFC    call t_startf('edge_unpack')
     threadsafe=.false.
 
     is=desc%getmapP(south)
@@ -967,8 +962,6 @@ contains
         end do
       endif
     end do
-
-!PFC    call t_stopf('edge_unpack')
 
     ! End Routine 
     !-------------

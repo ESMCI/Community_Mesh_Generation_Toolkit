@@ -74,7 +74,7 @@ module derivative_mod
   public :: subcell_integration
   private:: allocate_subcell_integration_matrix
 
-  ! PFC: Hack to set global option values
+  ! Set global option values
   !--------------------------------------
   public :: init_derivative_mod
   private:: hypervis_scaling
@@ -132,7 +132,7 @@ module derivative_mod
 contains
   !==================================================================
   subroutine init_derivative_mod(I_SEopt)
-    ! PFC: Hack to set global option values
+    ! Set global option values
     !--------------------------------------
     use SE_Options,only: SEoptions_t
     ! Passed Variables
@@ -200,12 +200,6 @@ contains
     endif
 
     call dvvinit(dvv,gp)
-!DIAG******************************************
-!    print *,' dvv(1)=',dvv(:,1)
-!    print *,' dvv(2)=',dvv(:,2)
-!    print *,' dvv(3)=',dvv(:,3)
-!    print *,' dvv(4)=',dvv(:,4)
-!DIAG******************************************
     deriv%Dvv(:,:)=dvv(:,:)
 
     do ii=1,np

@@ -98,7 +98,7 @@ module mesh_mod
 contains
   !==================================================================
   subroutine init_mesh_mod(I_SEopt)
-    ! PFC: Hack to set global option values
+    ! Set global option values
     !--------------------------------------
     use SE_Options,only: SEoptions_t
     ! Passed Variables
@@ -108,9 +108,6 @@ contains
     max_elements_attached_to_node = I_SEopt%max_elements_attached_to_node
     max_corner_elem               = I_SEopt%max_corner_elem
  
-    print *,' PFC: max_elements_attached_to_node =',max_elements_attached_to_node,I_SEopt%max_elements_attached_to_node
-    print *,' PFC: max_corner_elem =',max_corner_elem,I_SEopt%max_corner_elem
-
     ! End Routine
     !-------------
     return
@@ -1312,19 +1309,16 @@ contains
 
 
   !======================================================================
-!PFC  subroutine MeshOpen(mesh_file_name, par) 
   subroutine MeshOpen(mesh_file_name) 
     ! MeshOpen:
     !
     !======================================================================
-!PFC    use parallel_mod,only: parallel_t
     use err_exit    ,only: endrun, iulog
     use SE_Constants,only: real_kind
     !
     ! Passed Variables
     !------------------
     character (len=*),intent(in):: mesh_file_name
-!PFC    type (parallel_t),intent(in):: par
     !
     ! Local Values
     !------------------
@@ -1346,11 +1340,9 @@ contains
 
     ! Only spheres are allowed in input files.
     !------------------------------------------
-!PFC    if(par%masterproc) then
-      if(p_number_blocks == 1) then
-        write(iulog,*) "Since the mesh file has only one block, it is assumed to be a sphere."
-      endif
-!PFC    endif
+    if(p_number_blocks == 1) then
+      write(iulog,*) "Since the mesh file has only one block, it is assumed to be a sphere."
+    endif
     if(p_number_blocks /= 1) then
       call endrun('Number of elements blocks not exactly 1 (sphere)')
     endif
@@ -1426,36 +1418,31 @@ contains
 
 
   !======================================================================
-!PFC  subroutine MeshPrint(par)
   subroutine MeshPrint
     ! MeshPrint:
     !
     !======================================================================
-!PFC    use parallel_mod, only : parallel_t
     use err_exit,only: endrun
     !
     ! Passed Variables
     !------------------
-!PFC    type (parallel_t),intent(in):: par
 
-!PFC    if(par%masterproc) then
-      print *, 'This are the values for file ', trim(p_mesh_file_name)
-      print *, 'The value for the number of dimensions (num_dim) is ', p_number_dimensions
-      print *, 'The number of elements in the mesh file is ', p_number_elements
-      print *, 'The number of nodes in the mesh file is ', p_number_nodes
-      print *, 'The number of blocks in the mesh file is ',  p_number_blocks
-      print *, 'The number of elements in the face 1 (sphere) is ',  p_number_elements_per_face
-      if(p_number_elements == p_number_elements) then
-        print *, 'The value of the total number of elements does match all the elements found in face 1 (the only face)' 
-      else
-        print *, 'The value of the total number of elements does not match all the elements found in face 1'
-        print *, 'This message should not be appearing, there is something wrong in the code'
-      endif
-      print *, 'The number of neighbor edges ', p_number_neighbor_edges
-      !print *, 'The node connectivity are (compare with ncdump -v connect1) ', p_connectivity
-      !print *, ' ========================================================='
-      !print *, 'The node coordinates are (compare with ncdump -v coord) ', p_node_coordinates
-!PFC    endif
+    print *, 'This are the values for file ', trim(p_mesh_file_name)
+    print *, 'The value for the number of dimensions (num_dim) is ', p_number_dimensions
+    print *, 'The number of elements in the mesh file is ', p_number_elements
+    print *, 'The number of nodes in the mesh file is ', p_number_nodes
+    print *, 'The number of blocks in the mesh file is ',  p_number_blocks
+    print *, 'The number of elements in the face 1 (sphere) is ',  p_number_elements_per_face
+    if(p_number_elements == p_number_elements) then
+      print *, 'The value of the total number of elements does match all the elements found in face 1 (the only face)' 
+    else
+      print *, 'The value of the total number of elements does not match all the elements found in face 1'
+      print *, 'This message should not be appearing, there is something wrong in the code'
+    endif
+    print *, 'The number of neighbor edges ', p_number_neighbor_edges
+    !print *, 'The node connectivity are (compare with ncdump -v connect1) ', p_connectivity
+    !print *, ' ========================================================='
+    !print *, 'The node coordinates are (compare with ncdump -v coord) ', p_node_coordinates
     
     ! End Routine
     !---------------

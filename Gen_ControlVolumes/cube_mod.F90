@@ -129,19 +129,17 @@ module cube_mod
 contains
   !==================================================================
   subroutine init_cube_mod(I_SEopt)
-    ! PFC: Hack to set global option values
+    ! Set global option values
     !--------------------------------------
     use SE_Options,only: SEoptions_t
     ! Passed Variables
     !------------------
     type(SEoptions_t),intent(in):: I_SEopt
 
-  print *,' PFC: init_cube_mod: ne=',ne,I_SEopt%ne
     hypervis_scaling = I_SEopt%hypervis_scaling
     cubed_sphere_map = I_SEopt%cubed_sphere_map
     ne               = I_SEopt%ne
     partmethod       = I_SEopt%partmethod
-  print *,' PFC: init_cube_mod: ne=',ne,I_SEopt%ne
 
     ! End Routine
     !-------------

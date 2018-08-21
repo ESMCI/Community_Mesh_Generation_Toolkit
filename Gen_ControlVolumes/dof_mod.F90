@@ -61,7 +61,7 @@ module dof_mod
 contains
   !==================================================================
   subroutine init_dof_mod(I_SEopt)
-    ! PFC: Hack to set global option values
+    ! Set global option values
     !--------------------------------------
     use SE_Options,only: SEoptions_t
     ! Passed Variables

@@ -14,8 +14,6 @@ module surfaces_mod
   use err_exit              ,only: iulog,endrun
   use edge_mod              ,only: EdgeBuffer_t, GhostBuffer3D_t
 
-
-
 !PFC   use bndry_mod             ,only: ghost_exchangeVfull                       !XXXX
 
   ! Set all Global values and routines to private by default
@@ -302,6 +300,7 @@ contains
     logical                   :: Debug=.FALSE.,keep
 
     gll_pts = gausslobatto(np)
+
     ! gll points
     !------------
     cv_pts(0)=-1
@@ -315,10 +314,6 @@ contains
         call endrun("Error: CV and GLL points not interleaved")
       endif
     end do
-
-!DIAG----------------
- print *,' DIAG: cv_pts()=',cv_pts(0:np)
-!DIAG----------------
 
     ! intialize local element areas
     !-------------------------------
@@ -1326,8 +1321,7 @@ contains
     !--------------------------------------------------------------------
     call construct_cv_gll(elem,nets,nete)
 
-!PFC    iter_max=2000
-    iter_max=200
+    iter_max=2000
     if(iter_max>0) then
       ! areas computed from eleemnts on boundaries are from hexagons and pentagons
       ! compute new areas where all CVs are squares or triangles
@@ -1530,10 +1524,8 @@ contains
       end  do  ! ie loop
 
       dx=maxval(d1)
-!PFC      d1_global = ParallelMax(dx,hybrid)
       d1_global = dx
       dx=maxval(d1mid)
-!PFC      d1_global_mid = ParallelMax(dx,hybrid)
       d1_global_mid = dx
       if(mod(iter-1,250).eq.0) then
         print *,iter,"max d1=",d1_global,d1_global_mid
@@ -1892,7 +1884,6 @@ contains
     !=================================================================================
     use element_mod ,only: element_t
     use edge_mod    ,only: edgeVpack, edgeVunpack, edgeVunpackVert
-
 !PFC    use bndry_mod   ,only: bndry_exchangev                              !XXXXXX
     implicit none
     !
@@ -2279,12 +2270,8 @@ contains
         emax=locmax
       endif
     end do
-!PFC    rmin = ParallelMin(rmin,hybrid)
-!PFC    rmax = ParallelMax(rmax,hybrid)
-      write(*,'(a,2e14.7)') "Min/max ratio between spherical and GLL area:",rmin,rmax
-!PFC    if(maxelem_variation == ParallelMax(maxelem_variation,hybrid) ) then
-      write(*,'(a,2e14.7)') "Min/max ratio element with largest variation:",emin,emax
-!PFC    endif
+    write(*,'(a,2e14.7)') "Min/max ratio between spherical and GLL area:",rmin,rmax
+    write(*,'(a,2e14.7)') "Min/max ratio element with largest variation:",emin,emax
 
     rmin=2
     rmax=0
@@ -2295,9 +2282,7 @@ contains
       rmin = min(r,rmin)
       rmax = max(r,rmax)
     end do
-!PFC    rmin = ParallelMin(rmin,hybrid)
-!PFC    rmax = ParallelMax(rmax,hybrid)
-      write(*,'(a,2f12.9)') "Min/max ratio spherical and GLL element area:",rmin,rmax
+    write(*,'(a,2f12.9)') "Min/max ratio spherical and GLL element area:",rmin,rmax
 
     do ie=nets,nete
       global_shared_buf(ie,1:6) = 0.d0
@@ -2317,8 +2302,6 @@ contains
 
     ptot=0_real_kind
     do face=1,6
-!PFC      red_sum%buf(1) = global_shared_sum(face)
-!PFC      psum = red_sum%buf(1)
       psum = global_shared_sum(face)
 
       ptot = ptot + psum
