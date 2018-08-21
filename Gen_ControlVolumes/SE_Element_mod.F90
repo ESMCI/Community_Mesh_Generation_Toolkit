@@ -326,11 +326,11 @@ contains
     !                parameters, the routine goes thru the initialization step
     !                for the elem/deriv datastructures found in the cesm1_3_beta06
     !                revision of the SE dycore. In general, the original coding
-    !                is followed as closely as possible. Ommisions focues on 
+    !                is followed as closely as possible. Ommisions focus on 
     !                initializations of unneeded values related to the primitive
     !                equations and all MPI realted coding. 
-    !                After all of the init code is complete, the elem() data 
-    !                structure is returned.
+    !                After all of the init code for the base grid is complete, 
+    !                the elem() data structure is returned.
     !===========================================================================
     use SE_Constants   ,only: real_kind,longdouble_kind,rearth,rrearth, &
                               DD_PI,np,nc,nep
