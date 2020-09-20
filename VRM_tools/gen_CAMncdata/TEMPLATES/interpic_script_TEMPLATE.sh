@@ -51,7 +51,7 @@ mkdir -p ${VRinicPath}
 
 # Strip lat/lon arrays from SE template file
 #---------------------------------------------
-ncks -v lat,lon ${VRlatlonFile} SE_template.nc
+ncks -v lat,lon,area ${VRlatlonFile} SE_template.nc
 
 # Attach vertical coordinates to template file
 #-----------------------------------------------
@@ -59,7 +59,7 @@ ncks -A -v hyai,hyam,hybi,hybm ${LEVELFILE} SE_template.nc
 
 # Run interpic to interpolate to SE grid.
 #------------------------------------------
-${INTERPIC} -t SE_template.nc ${INTERPFILE} ${VRinicFile}
+${INTERPIC} -t SE_template.nc -i area ${INTERPFILE} ${VRinicFile}
 
 # Rename US and VS (assuming FV inic) to U,V for SE
 #---------------------------------------------------
