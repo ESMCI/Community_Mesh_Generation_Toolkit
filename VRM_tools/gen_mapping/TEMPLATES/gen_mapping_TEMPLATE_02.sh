@@ -114,15 +114,25 @@ echo " "
 cd ${wgtFileDir}
 
 if [ "$atmName" != "$lndName" ]; then
-  echo "Generating ATM <-> [LND,OCN,ROF,GLC] maps..... "
+  if [ "$atmName" != "$ocnName" ]; then
+    echo "Generating ATM <-> [LND,OCN,ROF,GLC] maps..... "
 
-  ${mapDir}/gen_cesm_maps.sh -fatm ${atmGridName} -natm ${atmName} -flnd ${lndGridName} -nlnd ${lndName} -focn ${ocnGridName} -nocn ${ocnName} -frtm ${rofGridName} -nrtm ${rofName} -fglc ${glcGridName} -nglc ${glcName} -idate ${cdate}
+    ${mapDir}/gen_cesm_maps.sh -fatm ${atmGridName} -natm ${atmName} -flnd ${lndGridName} -nlnd ${lndName} -focn ${ocnGridName} -nocn ${ocnName} -frtm ${rofGridName} -nrtm ${rofName} -fglc ${glcGridName} -nglc ${glcName} -idate ${cdate}
 
+  else
+    echo "Generating ATM <-> [LND,ROF,GLC] maps..... "
+    ${mapDir}/gen_cesm_maps.sh -fatm ${atmGridName} -natm ${atmName} -flnd ${lndGridName} -nlnd ${lndName} -frtm ${rofGridName} -nrtm ${rofName} -fglc ${glcGridName} -nglc ${glcName} -idate ${cdate}
+
+  fi
 else
+  if [ "$atmName" != "$ocnName" ]; then
+    echo "Generating ATM <-> [OCN,ROF,GLC] maps..... "
+    ${mapDir}/gen_cesm_maps.sh -fatm ${atmGridName} -natm ${atmName} -focn ${ocnGridName} -nocn ${ocnName} -frtm ${rofGridName} -nrtm ${rofName} -fglc ${glcGridName} -nglc ${glcName} -idate ${cdate}
 
-  echo "Generating ATM <-> [OCN,ROF,GLC] maps..... "
-  ${mapDir}/gen_cesm_maps.sh -fatm ${atmGridName} -natm ${atmName} -focn ${ocnGridName} -nocn ${ocnName} -frtm ${rofGridName} -nrtm ${rofName} -fglc ${glcGridName} -nglc ${glcName} -idate ${cdate}
-
+  else
+    echo "Generating ATM <-> [ROF,GLC] maps..... "
+    ${mapDir}/gen_cesm_maps.sh -fatm ${atmGridName} -natm ${atmName} -frtm ${rofGridName} -nrtm ${rofName} -fglc ${glcGridName} -nglc ${glcName} -idate ${cdate}
+  fi
 fi
 
 ############################# WAV <-> ATM ########################################

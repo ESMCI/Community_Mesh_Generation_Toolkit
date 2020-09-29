@@ -9,7 +9,7 @@
 ##
 ##  set SCRIP_FILE  = $GRID_TAG"_np4_SCRIP.nc"
 ##  set LATLON_FILE = $GRID_TAG"_np4_LATLON.nc"
-##  set EXODUS_FILE = $GRID_TAG"_np4_EXODUS.nc"
+##  set EXODUS_FILE = $GRID_TAG"_EXODUS.nc"
 ##--------------------------------------------------------
 
   set CESM_TAG    = $VRM_CESM_TAG
@@ -20,7 +20,7 @@
 
   set SCRIP_FILE  = $GRID_TAG"_np4_SCRIP.nc"
   set LATLON_FILE = $GRID_TAG"_np4_LATLON.nc"
-  set EXODUS_FILE = $GRID_TAG"_np4_EXODUS.nc"
+  set EXODUS_FILE = $GRID_TAG"_EXODUS.nc"
 
   set SEDcmdA="s:AAAAAAAAAA:"$GRID_TAG":g"
   set SEDcmdT="s:TTTTTTTTTT:"$CESM_TAG":g"

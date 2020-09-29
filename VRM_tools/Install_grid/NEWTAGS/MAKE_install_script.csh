@@ -5,6 +5,7 @@
 ##  set REPO_PATH   = "/path/to/repo/"  
 ##  set GRID_TAG    = "NEWGRIDNAME_ne30x4"
 ##  set GRID_NAME   = "ne0np4.NEWGRIDNAME.ne30x4"
+##  set TOPO_TAG    = "blin"  or {ridge descriptor e.g "nc3000_Co060_Fi001_MulG_PF_RR_Nsw042"}
 ##  set DATE        = "200303"
 ##
 ##  set SCRIP_FILE  = $GRID_TAG"_np4_SCRIP.nc"
@@ -15,9 +16,11 @@
   set REPO_PATH   = $VRM_REPO_PATH
   set GRID_TAG    = $VRM_GRID_TAG
   set GRID_NAME   = $VRM_GRID_NAME
+  set TOPO_TAG    = $VRM_TOPO_TAG
   set DATE        = $VRM_DATE
   set NCOL        = $VRM_GRID_NCOL
 
+  set SEDcmdT="s:TXTXTXTXTX:"$TOPO_TAG":g"
   set SEDcmdA="s:AXAXAXAXAX:"$GRID_TAG":g"
   set SEDcmdG="s:GXGXGXGXGX:"$GRID_NAME":g"
   set SEDcmdR="s:RXRXRXRXRX:"$REPO_PATH":g"
@@ -38,5 +41,5 @@
   echo "  # "
   echo "  #--------------------------------------------------------- "
   echo " "
-  sed -e $SEDcmdA -e $SEDcmdG -e $SEDcmdR -e $SEDcmdD -e $SEDcmdN < ./CONFIG-TEMPLATES/Install_grid_TEMPLATE.csh >  ./Install_grid_$GRID_TAG.csh 
+  sed -e $SEDcmdA -e $SEDcmdT -e $SEDcmdG -e $SEDcmdR -e $SEDcmdD -e $SEDcmdN < ./CONFIG-TEMPLATES/Install_grid_TEMPLATE.csh >  ./Install_grid_$GRID_TAG.csh 
 

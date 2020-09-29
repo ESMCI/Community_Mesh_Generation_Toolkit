@@ -110,9 +110,9 @@ make_map() {
   map=$7
   idate=$8
   if [ "$serial" == "TRUE" ]; then
-    run_serial="--serial"
+    run_serial="--large_file --serial"
   else
-    run_serial=""
+    run_serial="--large_file "
   fi
   $make_map_exe -fsrc $fsrc -nsrc $nsrc -fdst $fdst -ndst $ndst  \
                 -tsrc $tsrc -tdst $tdst -idate $idate -map $map $run_serial   || exit $?

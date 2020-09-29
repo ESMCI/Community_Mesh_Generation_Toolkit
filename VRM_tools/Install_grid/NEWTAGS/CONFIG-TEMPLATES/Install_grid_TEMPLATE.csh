@@ -11,10 +11,12 @@
 ##  set DATE        = "YYMMDD"
 ##
 ##  set EXODUS_FILE = $GRID_TAG"_EXODUS.nc"
+##  set MESH_FILE   = $GRID_TAG"_np4_MESH.nc"        <--- modify 'np4' for other options!
 ##  set FULLPATH    = $REPO_PATH'/'$GRID_NAME'/'
 ##  set OUTFILE     = $FULLPATH"config_grids.xml"
 ##--------------------------------------------------------
 
+  set TOPO_TAG   = "TXTXTXTXTX"
   set GRID_TAG   = "AXAXAXAXAX"
   set GRID_NAME  = "GXGXGXGXGX"
   set GRIDDESC   = "ADD A DESCRIPTION OF THE GRID HERE"
@@ -27,19 +29,20 @@
   # NO NEED TO EDIT PAST HERE
   #-------------------------------------------------------------------------------
   set EXODUS_FILE = $GRID_TAG"_EXODUS.nc"
-  set MESH_FILE   = $GRID_TAG"_MESH.nc"
+  set MESH_FILE   = $GRID_TAG"_np4_MESH.nc"
   set FULLPATH    = $REPO_PATH'/'$GRID_NAME'/'
   set OUTFILE     = $FULLPATH"config_grids.xml"
 
   cp ./CONFIG-TEMPLATES/shell_commands-TEMPLATE $FULLPATH/shell_commands
 
 
+  set SEDcmdT="s:TTTTTTTTTT:"$TOPO_TAG":g"
   set SEDcmdG="s:GGGGGGGGGG:"$GRID_NAME":g"
   set SEDcmdP="s:PPPPPPPPPP:"$FULLPATH":g"
   set SEDcmdE="s:EEEEEEEEEE:"$EXODUS_FILE":g"
   set SEDcmdD="s:DDDDDDDDDD:"$DATE":g"
-  sed -e $SEDcmdG -e $SEDcmdP -e $SEDcmdE -e $SEDcmdD < ./CONFIG-TEMPLATES/user_nl_cam-TEMPLATE  >  $FULLPATH/user_nl_cam
-  sed -e $SEDcmdG -e $SEDcmdP -e $SEDcmdD             < ./CONFIG-TEMPLATES/user_nl_clm-TEMPLATE  >  $FULLPATH/user_nl_clm
+  sed -e $SEDcmdG -e $SEDcmdP -e $SEDcmdE -e $SEDcmdT -e $SEDcmdD < ./CONFIG-TEMPLATES/user_nl_cam-TEMPLATE  >  $FULLPATH/user_nl_cam
+  sed -e $SEDcmdG -e $SEDcmdP -e $SEDcmdD                         < ./CONFIG-TEMPLATES/user_nl_clm-TEMPLATE  >  $FULLPATH/user_nl_clm
 
 
 

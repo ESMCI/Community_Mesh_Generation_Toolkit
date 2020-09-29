@@ -29,7 +29,6 @@
  se_lcp_moist                  =  .true.
  se_limiter_option             =  8
  se_phys_dyn_cp                =  1
- se_qsize_condensate_loading   =  5
  se_rayk0                      =  2
  se_raykrange                  =  0.5
  se_raytau0                    =  0.0
@@ -37,15 +36,16 @@
  se_statefreq                  =  0
  se_tracer_num_threads         =  0
  se_tstep_type                 =  4
- se_variable_nsplit            = .false.
  se_vert_num_threads           =  0
- se_vert_remap_q_alg           =  1
 /
+! se_variable_nsplit            = .false.
+! se_qsize_condensate_loading   =  5
+! se_vert_remap_q_alg           =  1
 
 &chem_inparm
 drydep_srf_file = 'PPPPPPPPPP/atmsrf/atmsrf_GGGGGGGGGG_DDDDDDDDDD.nc'
 /
 &cam_initfiles_nl
- bnd_topo       = 'PPPPPPPPPP/topo/topo_GGGGGGGGGG_blin_DDDDDDDDDD.nc'
+ bnd_topo       = 'PPPPPPPPPP/topo/topo_GGGGGGGGGG_TTTTTTTTTT_DDDDDDDDDD.nc'
  ncdata         = 'PPPPPPPPPP/inic/cami-mam4_0000-01-01_GGGGGGGGGG_L32_cDDDDDDDDDD.nc'
 /
