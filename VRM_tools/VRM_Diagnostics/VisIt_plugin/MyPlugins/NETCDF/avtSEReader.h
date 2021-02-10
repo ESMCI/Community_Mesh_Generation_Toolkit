@@ -93,6 +93,8 @@ private:
       int   *connect;
       float *lon;
       float *lat;
+      int    nwrap;
+      bool  *WrapAround;
       bool   has3D;
       int    nlev;
       float *lev;

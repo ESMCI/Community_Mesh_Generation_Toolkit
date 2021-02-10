@@ -58,7 +58,7 @@
 
 #include <InvalidVariableException.h>
 #include <DebugStream.h>
-#include <snprintf.h>
+// #include <snprintf.h>
 
 // ****************************************************************************
 // Method: avtLODIParticleFileFormat::Identify
@@ -1130,7 +1130,7 @@ avtLODIParticleFileFormat::GetParticleMask(int ts)
     const char *MASK_KEY = "mask key";
 
     char key[1000];
-    SNPRINTF(key, 1000, "%s_particle_mask_ts=%d",
+    snprintf(key, 1000, "%s_particle_mask_ts=%d",
         fileObject->GetName().c_str(), ts);
     bool *retval = 0;
 

@@ -37,7 +37,7 @@
 *****************************************************************************/
 
 #include <vector>
-#include <snprintf.h>
+// #include <snprintf.h>
 #include <netcdf.h>
 
 #include <avtSEReader.h>
@@ -250,6 +250,7 @@ avtSEReader::PopulateDatabaseMetaData(int timeState, avtDatabaseMetaData *md)
     hasSEgrid = false;
     SEgrid.ncol         = -1;
     SEgrid.ncenters     = -1;
+    SEgrid.nwrap        = -1;
     SEgrid.nlev         = -1;
     SEgrid.has3D        = false;
     SEgrid.has2Dheight  = false;
@@ -308,7 +309,7 @@ avtSEReader::PopulateDatabaseMetaData(int timeState, avtDatabaseMetaData *md)
           if(!homedir.empty())
           {
             if(homedir[homedir.size() - 1] != SlashChar) homedir += VISIT_SLASH_STRING;
-            SNPRINTF(tmp, 100, "SEMapping_%08d.nc", ncol);
+            snprintf(tmp, 100, "SEMapping_%08lu.nc", ncol);
             mapFileName = homedir + std::string(tmp);
             int mapid;
             int ncentersID;
@@ -346,6 +347,35 @@ avtSEReader::PopulateDatabaseMetaData(int timeState, avtDatabaseMetaData *md)
           } else {
             hasSEgrid = false;
           }
+        }
+
+        // Now go thru and flag the cells that straddle 
+        // the wrap-around point at 0/360.
+        // ---------------------------------------------
+        int   origin = 1;
+        SEgrid.WrapAround  = new bool[SEgrid.ncenters];
+        SEgrid.nwrap       = 0;
+        for(int i = 0; i < SEgrid.ncenters; ++i)
+        {
+          // The first point should be in the range [0,360], so loop
+          // over other points in the quad. If a the abs() change in lon
+          // value exceeds 180, then we have a wrap-around point
+          //----------------------------------------------------------
+          SEgrid.WrapAround[i] = false;
+          for(int j = 1; j < 4; ++j)
+          {
+            int   index0 = SEgrid.connect[i];
+            int   index  = SEgrid.connect[i + j*SEgrid.ncenters];
+            float DltLon = SEgrid.lon[index-origin] - SEgrid.lon[index0-origin];
+            if((DltLon < -180.) || (DltLon >  180.))
+            {
+              SEgrid.WrapAround[i] = true;
+            }
+          }
+          if(SEgrid.WrapAround[i] == true) 
+          {
+            SEgrid.nwrap += 1;
+          } 
         }
 
         // Now determine if optional mesh information is available.
@@ -468,7 +498,8 @@ avtSEReader::PopulateDatabaseMetaData(int timeState, avtDatabaseMetaData *md)
           {
              char buffer[50];
              int n;
-             n=sprintf(buffer, "Level %d",(i)); (void) n;   // TODO: Add lev(i) values
+// UPWARD index   n=sprintf(buffer, "Level %d",(i)); (void) n;   // TODO: Add lev(i) values
+             n=sprintf(buffer, "Level %d",(SEgrid.nlev - i)); (void) n; 
              matmd_lay->materialNames.push_back(buffer);
           }
           md->Add(matmd_lay);
@@ -498,7 +529,8 @@ avtSEReader::PopulateDatabaseMetaData(int timeState, avtDatabaseMetaData *md)
           {
              char buffer[50];
              int n;
-             n=sprintf(buffer, "Layer %d",(i)); (void) n;   // TODO: Add lev(i) values
+// UPWARD index   n=sprintf(buffer, "Layer %d",(i)); (void) n;   // TODO: Add lev(i) values
+             n=sprintf(buffer, "Layer %d",(SEgrid.nlev - i)); (void) n; 
              matmd_lay->materialNames.push_back(buffer);
           }
           md->Add(matmd_lay);
@@ -530,7 +562,8 @@ avtSEReader::PopulateDatabaseMetaData(int timeState, avtDatabaseMetaData *md)
             {
                char buffer[50];
                int n;
-               n=sprintf(buffer, "Level %d",(i)); (void) n;   // TODO: Add lev(i) values
+// UPWARD index   n=sprintf(buffer, "Level %d",(i)); (void) n;   // TODO: Add lev(i) values
+               n=sprintf(buffer, "Level %d",(SEgrid.nlev - i)); (void) n; 
                matmd_lay->materialNames.push_back(buffer);
             }
             md->Add(matmd_lay);
@@ -560,7 +593,8 @@ avtSEReader::PopulateDatabaseMetaData(int timeState, avtDatabaseMetaData *md)
             {
                char buffer[50];
                int n;
-               n=sprintf(buffer, "Layer %d",(i)); (void) n;   // TODO: Add lev(i) values
+// UPWARD index   n=sprintf(buffer, "Layer %d",(i)); (void) n;   // TODO: Add lev(i) values
+               n=sprintf(buffer, "Layer %d",(SEgrid.nlev - i)); (void) n; 
                matmd_lay->materialNames.push_back(buffer);
             }
             md->Add(matmd_lay);
@@ -732,7 +766,8 @@ avtSEReader::PopulateDatabaseMetaData(int timeState, avtDatabaseMetaData *md)
           {
              char buffer[50];
              int n;
-             n=sprintf(buffer, "Level %d",(i)); (void) n;   // TODO: Add lev(i) values
+// UPWARD index   n=sprintf(buffer, "Level %d",(i)); (void) n;   // TODO: Add lev(i) values
+             n=sprintf(buffer, "Level %d",(SEgrid.nlev - i)); (void) n; 
              matmd_lay->materialNames.push_back(buffer);
           }
           md->Add(matmd_lay);
@@ -762,7 +797,8 @@ avtSEReader::PopulateDatabaseMetaData(int timeState, avtDatabaseMetaData *md)
           {
              char buffer[50];
              int n;
-             n=sprintf(buffer, "Layer %d",(i)); (void) n;   // TODO: Add lev(i) values
+// UPWARD index   n=sprintf(buffer, "Layer %d",(i)); (void) n;   // TODO: Add lev(i) values
+             n=sprintf(buffer, "Layer %d",(SEgrid.nlev - i)); (void) n; 
              matmd_lay->materialNames.push_back(buffer);
           }
           md->Add(matmd_lay);
@@ -794,7 +830,8 @@ avtSEReader::PopulateDatabaseMetaData(int timeState, avtDatabaseMetaData *md)
             {
                char buffer[50];
                int n;
-               n=sprintf(buffer, "Level %d",(i)); (void) n;   // TODO: Add lev(i) values
+// UPWARD index   n=sprintf(buffer, "Level %d",(i)); (void) n;   // TODO: Add lev(i) values
+               n=sprintf(buffer, "Level %d",(SEgrid.nlev - i)); (void) n; 
                matmd_lay->materialNames.push_back(buffer);
             }
             md->Add(matmd_lay);
@@ -824,7 +861,8 @@ avtSEReader::PopulateDatabaseMetaData(int timeState, avtDatabaseMetaData *md)
             {
               char buffer[50];
               int n;
-              n=sprintf(buffer, "Layer %d",(i)); (void) n;   // TODO: Add lev(i) values
+// UPWARD index   n=sprintf(buffer, "Layer %d",(i)); (void) n;   // TODO: Add lev(i) values
+              n=sprintf(buffer, "Layer %d",(SEgrid.nlev - i)); (void) n; 
               matmd_lay->materialNames.push_back(buffer);
             }
             md->Add(matmd_lay);
@@ -2475,14 +2513,26 @@ avtSEReader::GetMesh(int timeState, const char *var)
        ugrid->SetPoints(points);
        points->Delete();
        ugrid->Allocate(SEgrid.ncenters);
+//PFCDIAG       ugrid->Allocate(SEgrid.ncenters-SEgrid.nwrap);
        vtkIdType verts[4];
        for(int i = 0; i < SEgrid.ncenters; ++i)
        {
-          verts[0] = SEgrid.connect[i                    ] - origin;
-          verts[1] = SEgrid.connect[i +   SEgrid.ncenters] - origin;
-          verts[2] = SEgrid.connect[i + 2*SEgrid.ncenters] - origin;
-          verts[3] = SEgrid.connect[i + 3*SEgrid.ncenters] - origin;
-          ugrid->InsertNextCell(VTK_QUAD,4,verts);
+         if(!SEgrid.WrapAround[i]) 
+         {
+           verts[0] = SEgrid.connect[i                    ] - origin;
+           verts[1] = SEgrid.connect[i +   SEgrid.ncenters] - origin;
+           verts[2] = SEgrid.connect[i + 2*SEgrid.ncenters] - origin;
+           verts[3] = SEgrid.connect[i + 3*SEgrid.ncenters] - origin;
+           ugrid->InsertNextCell(VTK_QUAD,4,verts);
+         }
+         else
+         {
+           verts[0] = SEgrid.connect[i] - origin;
+           verts[1] = SEgrid.connect[i] - origin;
+           verts[2] = SEgrid.connect[i] - origin;
+           verts[3] = SEgrid.connect[i] - origin;
+           ugrid->InsertNextCell(VTK_QUAD,4,verts);
+         }
        }
        return ugrid;
     }
@@ -2526,19 +2576,35 @@ avtSEReader::GetMesh(int timeState, const char *var)
        ugrid->SetPoints(points);
        points->Delete();
        ugrid->Allocate(SEgrid.ncenters*SEgrid.nlev);
+//PFCDIAG       ugrid->Allocate((SEgrid.ncenters-SEgrid.nwrap)*SEgrid.nlev);
        vtkIdType verts[8];
        for(int k = 1; k < SEgrid.nlev    ; ++k)
        for(int i = 0; i < SEgrid.ncenters; ++i)
        {
-          verts[0] = SEgrid.connect[i                    ] +(k-1)*SEgrid.ncol - origin;
-          verts[1] = SEgrid.connect[i +   SEgrid.ncenters] +(k-1)*SEgrid.ncol - origin;
-          verts[2] = SEgrid.connect[i + 2*SEgrid.ncenters] +(k-1)*SEgrid.ncol - origin;
-          verts[3] = SEgrid.connect[i + 3*SEgrid.ncenters] +(k-1)*SEgrid.ncol - origin;
-          verts[4] = SEgrid.connect[i                    ] +(k  )*SEgrid.ncol - origin;
-          verts[5] = SEgrid.connect[i +   SEgrid.ncenters] +(k  )*SEgrid.ncol - origin;
-          verts[6] = SEgrid.connect[i + 2*SEgrid.ncenters] +(k  )*SEgrid.ncol - origin;
-          verts[7] = SEgrid.connect[i + 3*SEgrid.ncenters] +(k  )*SEgrid.ncol - origin;
-          ugrid->InsertNextCell(VTK_HEXAHEDRON,8,verts);
+         if(!SEgrid.WrapAround[i])
+         {
+           verts[0] = SEgrid.connect[i                    ] +(k-1)*SEgrid.ncol - origin;
+           verts[1] = SEgrid.connect[i +   SEgrid.ncenters] +(k-1)*SEgrid.ncol - origin;
+           verts[2] = SEgrid.connect[i + 2*SEgrid.ncenters] +(k-1)*SEgrid.ncol - origin;
+           verts[3] = SEgrid.connect[i + 3*SEgrid.ncenters] +(k-1)*SEgrid.ncol - origin;
+           verts[4] = SEgrid.connect[i                    ] +(k  )*SEgrid.ncol - origin;
+           verts[5] = SEgrid.connect[i +   SEgrid.ncenters] +(k  )*SEgrid.ncol - origin;
+           verts[6] = SEgrid.connect[i + 2*SEgrid.ncenters] +(k  )*SEgrid.ncol - origin;
+           verts[7] = SEgrid.connect[i + 3*SEgrid.ncenters] +(k  )*SEgrid.ncol - origin;
+           ugrid->InsertNextCell(VTK_HEXAHEDRON,8,verts);
+         }
+         else
+         {
+           verts[0] = SEgrid.connect[i] +(k-1)*SEgrid.ncol - origin;
+           verts[1] = SEgrid.connect[i] +(k-1)*SEgrid.ncol - origin;
+           verts[2] = SEgrid.connect[i] +(k-1)*SEgrid.ncol - origin;
+           verts[3] = SEgrid.connect[i] +(k-1)*SEgrid.ncol - origin;
+           verts[4] = SEgrid.connect[i] +(k  )*SEgrid.ncol - origin;
+           verts[5] = SEgrid.connect[i] +(k  )*SEgrid.ncol - origin;
+           verts[6] = SEgrid.connect[i] +(k  )*SEgrid.ncol - origin;
+           verts[7] = SEgrid.connect[i] +(k  )*SEgrid.ncol - origin;
+           ugrid->InsertNextCell(VTK_HEXAHEDRON,8,verts);
+         }
        }
        return ugrid;
     }
@@ -2582,15 +2648,27 @@ avtSEReader::GetMesh(int timeState, const char *var)
        ugrid->SetPoints(points);
        points->Delete();
        ugrid->Allocate(SEgrid.ncenters*SEgrid.nlev);
+//PFCDIAG       ugrid->Allocate((SEgrid.ncenters-SEgrid.nwrap)*SEgrid.nlev);
        vtkIdType verts[4];
        for(int k = 0; k < SEgrid.nlev    ; ++k)
        for(int i = 0; i < SEgrid.ncenters; ++i)
        {
-          verts[0] = SEgrid.connect[i                    ] +(k*SEgrid.ncol) - origin;
-          verts[1] = SEgrid.connect[i +   SEgrid.ncenters] +(k*SEgrid.ncol) - origin;
-          verts[2] = SEgrid.connect[i + 2*SEgrid.ncenters] +(k*SEgrid.ncol) - origin;
-          verts[3] = SEgrid.connect[i + 3*SEgrid.ncenters] +(k*SEgrid.ncol) - origin;
-          ugrid->InsertNextCell(VTK_QUAD,4,verts);
+         if(!SEgrid.WrapAround[i])
+         {
+           verts[0] = SEgrid.connect[i                    ] +(k*SEgrid.ncol) - origin;
+           verts[1] = SEgrid.connect[i +   SEgrid.ncenters] +(k*SEgrid.ncol) - origin;
+           verts[2] = SEgrid.connect[i + 2*SEgrid.ncenters] +(k*SEgrid.ncol) - origin;
+           verts[3] = SEgrid.connect[i + 3*SEgrid.ncenters] +(k*SEgrid.ncol) - origin;
+           ugrid->InsertNextCell(VTK_QUAD,4,verts);
+         }
+         else
+         {
+           verts[0] = SEgrid.connect[i] +(k*SEgrid.ncol) - origin;
+           verts[1] = SEgrid.connect[i] +(k*SEgrid.ncol) - origin;
+           verts[2] = SEgrid.connect[i] +(k*SEgrid.ncol) - origin;
+           verts[3] = SEgrid.connect[i] +(k*SEgrid.ncol) - origin;
+           ugrid->InsertNextCell(VTK_QUAD,4,verts);
+         }
        }
        return ugrid;
     }
@@ -2629,14 +2707,26 @@ avtSEReader::GetMesh(int timeState, const char *var)
        ugrid->SetPoints(points);
        points->Delete();
        ugrid->Allocate(SEgrid.ncenters);
+//PFCDIAG       ugrid->Allocate(SEgrid.ncenters-SEgrid.nwrap);
        vtkIdType verts[4];
        for(int i = 0; i < SEgrid.ncenters; ++i)
        {
-          verts[0] = SEgrid.connect[i                    ] - origin;
-          verts[1] = SEgrid.connect[i +   SEgrid.ncenters] - origin;
-          verts[2] = SEgrid.connect[i + 2*SEgrid.ncenters] - origin;
-          verts[3] = SEgrid.connect[i + 3*SEgrid.ncenters] - origin;
-          ugrid->InsertNextCell(VTK_QUAD,4,verts);
+         if(!SEgrid.WrapAround[i])
+         {
+           verts[0] = SEgrid.connect[i                    ] - origin;
+           verts[1] = SEgrid.connect[i +   SEgrid.ncenters] - origin;
+           verts[2] = SEgrid.connect[i + 2*SEgrid.ncenters] - origin;
+           verts[3] = SEgrid.connect[i + 3*SEgrid.ncenters] - origin;
+           ugrid->InsertNextCell(VTK_QUAD,4,verts);
+         }
+         else
+         {
+           verts[0] = SEgrid.connect[i] - origin;
+           verts[1] = SEgrid.connect[i] - origin;
+           verts[2] = SEgrid.connect[i] - origin;
+           verts[3] = SEgrid.connect[i] - origin;
+           ugrid->InsertNextCell(VTK_QUAD,4,verts);
+         }
        }
        return ugrid;
     }
@@ -2689,19 +2779,35 @@ avtSEReader::GetMesh(int timeState, const char *var)
        ugrid->SetPoints(points);
        points->Delete();
        ugrid->Allocate(SEgrid.ncenters*SEgrid.nlev);
+//PFCDIAG       ugrid->Allocate((SEgrid.ncenters-SEgrid.nwrap)*SEgrid.nlev);
        vtkIdType verts[8];
        for(int k = 1; k < SEgrid.nlev    ; ++k)
        for(int i = 0; i < SEgrid.ncenters; ++i)
        {
-          verts[0] = SEgrid.connect[i                    ] +(k-1)*SEgrid.ncol - origin;
-          verts[1] = SEgrid.connect[i +   SEgrid.ncenters] +(k-1)*SEgrid.ncol - origin;
-          verts[2] = SEgrid.connect[i + 2*SEgrid.ncenters] +(k-1)*SEgrid.ncol - origin;
-          verts[3] = SEgrid.connect[i + 3*SEgrid.ncenters] +(k-1)*SEgrid.ncol - origin;
-          verts[4] = SEgrid.connect[i                    ] +(k  )*SEgrid.ncol - origin;
-          verts[5] = SEgrid.connect[i +   SEgrid.ncenters] +(k  )*SEgrid.ncol - origin;
-          verts[6] = SEgrid.connect[i + 2*SEgrid.ncenters] +(k  )*SEgrid.ncol - origin;
-          verts[7] = SEgrid.connect[i + 3*SEgrid.ncenters] +(k  )*SEgrid.ncol - origin;
-          ugrid->InsertNextCell(VTK_HEXAHEDRON,8,verts);
+         if(!SEgrid.WrapAround[i])
+         {
+           verts[0] = SEgrid.connect[i                    ] +(k-1)*SEgrid.ncol - origin;
+           verts[1] = SEgrid.connect[i +   SEgrid.ncenters] +(k-1)*SEgrid.ncol - origin;
+           verts[2] = SEgrid.connect[i + 2*SEgrid.ncenters] +(k-1)*SEgrid.ncol - origin;
+           verts[3] = SEgrid.connect[i + 3*SEgrid.ncenters] +(k-1)*SEgrid.ncol - origin;
+           verts[4] = SEgrid.connect[i                    ] +(k  )*SEgrid.ncol - origin;
+           verts[5] = SEgrid.connect[i +   SEgrid.ncenters] +(k  )*SEgrid.ncol - origin;
+           verts[6] = SEgrid.connect[i + 2*SEgrid.ncenters] +(k  )*SEgrid.ncol - origin;
+           verts[7] = SEgrid.connect[i + 3*SEgrid.ncenters] +(k  )*SEgrid.ncol - origin;
+           ugrid->InsertNextCell(VTK_HEXAHEDRON,8,verts);
+         }
+         else
+         {
+           verts[0] = SEgrid.connect[i] +(k-1)*SEgrid.ncol - origin;
+           verts[1] = SEgrid.connect[i] +(k-1)*SEgrid.ncol - origin;
+           verts[2] = SEgrid.connect[i] +(k-1)*SEgrid.ncol - origin;
+           verts[3] = SEgrid.connect[i] +(k-1)*SEgrid.ncol - origin;
+           verts[4] = SEgrid.connect[i] +(k  )*SEgrid.ncol - origin;
+           verts[5] = SEgrid.connect[i] +(k  )*SEgrid.ncol - origin;
+           verts[6] = SEgrid.connect[i] +(k  )*SEgrid.ncol - origin;
+           verts[7] = SEgrid.connect[i] +(k  )*SEgrid.ncol - origin;
+           ugrid->InsertNextCell(VTK_HEXAHEDRON,8,verts);
+         }
        }
        return ugrid;
     }
@@ -2754,15 +2860,27 @@ avtSEReader::GetMesh(int timeState, const char *var)
        ugrid->SetPoints(points);
        points->Delete();
        ugrid->Allocate(SEgrid.ncenters*SEgrid.nlev);
+//PFCDIAG       ugrid->Allocate((SEgrid.ncenters-SEgrid.nwrap)*SEgrid.nlev);
        vtkIdType verts[4];
        for(int k = 0; k < SEgrid.nlev    ; ++k)
        for(int i = 0; i < SEgrid.ncenters; ++i)
        {
-          verts[0] = SEgrid.connect[i                    ] +(k*SEgrid.ncol) - origin;
-          verts[1] = SEgrid.connect[i +   SEgrid.ncenters] +(k*SEgrid.ncol) - origin;
-          verts[2] = SEgrid.connect[i + 2*SEgrid.ncenters] +(k*SEgrid.ncol) - origin;
-          verts[3] = SEgrid.connect[i + 3*SEgrid.ncenters] +(k*SEgrid.ncol) - origin;
-          ugrid->InsertNextCell(VTK_QUAD,4,verts);
+         if(!SEgrid.WrapAround[i])
+         {
+           verts[0] = SEgrid.connect[i                    ] +(k*SEgrid.ncol) - origin;
+           verts[1] = SEgrid.connect[i +   SEgrid.ncenters] +(k*SEgrid.ncol) - origin;
+           verts[2] = SEgrid.connect[i + 2*SEgrid.ncenters] +(k*SEgrid.ncol) - origin;
+           verts[3] = SEgrid.connect[i + 3*SEgrid.ncenters] +(k*SEgrid.ncol) - origin;
+           ugrid->InsertNextCell(VTK_QUAD,4,verts);
+         }
+         else
+         {
+           verts[0] = SEgrid.connect[i] +(k*SEgrid.ncol) - origin;
+           verts[1] = SEgrid.connect[i] +(k*SEgrid.ncol) - origin;
+           verts[2] = SEgrid.connect[i] +(k*SEgrid.ncol) - origin;
+           verts[3] = SEgrid.connect[i] +(k*SEgrid.ncol) - origin;
+           ugrid->InsertNextCell(VTK_QUAD,4,verts);
+         }
        }
        return ugrid;
     } 
@@ -4013,7 +4131,8 @@ avtSEReader::GetAuxiliaryData(const char *var , int ts,
          char **names = new char *[nmat];
          for(int i = 0; i < nmat; ++i)
          {
-            matnos[i] = i + 1;
+// UPWARD index   matnos[i] = i + 1;
+            matnos[i] = nmat - 1 - i;
             char *buffer=new char[20];
             int n;
             n=sprintf(buffer, "Layer %d",matnos[i]); (void) n;
@@ -4057,7 +4176,8 @@ avtSEReader::GetAuxiliaryData(const char *var , int ts,
          char **names = new char *[nmat];
          for(int i = 0; i < nmat; ++i)
          {
-            matnos[i]    = i + 1;
+// UPWARD index   matnos[i]    = i + 1;
+            matnos[i]    = nmat - 1 - i;
             char *buffer = new char[20];
             int n;
             n=sprintf(buffer, "Level %d",matnos[i]); (void) n;
@@ -4103,7 +4223,8 @@ avtSEReader::GetAuxiliaryData(const char *var , int ts,
          char **names = new char *[nmat];
          for(int i = 0; i < nmat; ++i)
          {
-            matnos[i]    = i + 1;
+// UPWARD index   matnos[i]    = i + 1;
+            matnos[i]    = nmat - 1 - i;
             char *buffer = new char[20];
             int n;
             n=sprintf(buffer, "Level %d",matnos[i]); (void) n;
@@ -4153,7 +4274,8 @@ avtSEReader::GetAuxiliaryData(const char *var , int ts,
          char **names = new char *[nmat];
          for(int i = 0; i < nmat; ++i)
          {
-            matnos[i] = i + 1;
+// UPWARD index   matnos[i]    = i + 1;
+            matnos[i] = nmat - 1 - i;
             char *buffer=new char[20];
             int n;
             n=sprintf(buffer, "Layer %d",matnos[i]); (void) n;
