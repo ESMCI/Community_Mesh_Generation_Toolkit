@@ -21,7 +21,7 @@ begin
   InterpMethod="patch"   ;bilinear, patch, conserve
   infile="/glade/p/cesmdata/inputdata/atm/cam/chem/trop_mam/atmsrf_ne120np4_181018.nc"
   srcName="ne120np4"
-  srcGridDir="/glade/p/cesmdata/cseg/mapping/grids/"
+  srcGridDir="/glade/p/cesm/cseg/inputdata/share/scripgrids/"
   srcGridFile="ne120np4_pentagons_100310.nc"
   
   if (InterpMethod .eq. "patch") then

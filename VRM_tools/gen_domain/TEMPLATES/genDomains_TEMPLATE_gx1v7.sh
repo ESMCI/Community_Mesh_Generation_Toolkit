@@ -53,9 +53,9 @@ PATH_TO_MAPPING="${CESMroot}/cime/tools/mapping/"
 # for anything >ne30
 #----------------------------------------------------------------
 #ocnName="tx0.1v2"
-#ocnGridName="/glade/p/cesmdata/cseg/mapping/grids/tx0.1v2_090127.nc"
+#ocnGridName="/glade/p/cesm/cseg/inputdata/share/scripgrids/tx0.1v2_090127.nc"
 ocnName="gx1v7"
-ocnGridName="/glade/p/cesmdata/cseg/mapping/grids/gx1v7_151008.nc"
+ocnGridName="/glade/p/cesm/cseg/inputdata/share/scripgrids/gx1v7_151008.nc"
 
 # Set the map file needed
 #-------------------------------------------

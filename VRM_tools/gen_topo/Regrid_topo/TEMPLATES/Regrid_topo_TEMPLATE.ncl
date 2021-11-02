@@ -20,7 +20,7 @@ begin
   InterpMethod="bilinear"   ;bilinear, patch, conserve
   infile="/glade/p/cesmdata/inputdata/atm/cam/topo/ne120np4_nc3000_Nsw010_Nrs002_Co015_Fi001_20180926.nc"
   srcName="ne120np4"
-  srcGridDir="/glade/p/cesmdata/cseg/mapping/grids/"
+  srcGridDir="/glade/p/cesm/cseg/inputdata/share/scripgrids/"
   srcGridFile="ne120np4_pentagons_100310.nc"
   
   if (InterpMethod .eq. "patch") then
