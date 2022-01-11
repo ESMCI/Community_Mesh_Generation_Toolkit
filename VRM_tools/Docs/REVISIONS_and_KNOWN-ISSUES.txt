@@ -1,0 +1,119 @@
+===================
+  REVISIONS: (Jan 2022)
+===================
+
+ (1) Ability to change the REFINEMENT map resolution: (Gen_REFMAP.ncl)
+  ====================================================
+    * The editor has a default resoultion (720,360) which gives 
+      a good balance between responsiveness and grid editing for 
+      less powerful compute/graphics environments. For some grids, 
+      this resolution is not adequate and a higher resoultion makes 
+      the process easier. 
+      When the VRM_Edior reads in a refinement map via the actions
+      menu, the program adapts to the resolution of the map. This 
+      provides a means for changing from (720,360) to an alternate 
+      resolution. 
+      The NCL program Gen_REFMAP.ncl was added to make is easyier for 
+      users to change the resoution:
+  
+      (1) Edit the NCL script to set the desired resolution and set 
+          the name of the default REFMAP file to be created. 
+      (2) Run the script. It generates a REFMAP with values all set to 0.
+      (3) In VRM_Editor, Read in the new Refinememt Map via the actions 
+          menu. 
+      (4) Edit the higher resolution map just as for the default resolution.
+    
+      
+ (2) Ability to save the Refinement Grid for manual editing
+  ==========================================================
+    * When SquadGen is run, it creates a text file containing the refinement levels 
+      for each cube face. This file can be edited to tailor the grid refinements 
+      to the users needs and to fix blemishes in the grid. 
+      Once edited, the revised file is passed back as an argument to SQuadGen to 
+      create the EXODUS file. The VRM_Editor/Create_VRMgrid programs did not 
+      provide this functinality. 
+
+      The Create_VRMgrid program, is equivalent to the SQuadGen but it is compatable 
+      with the VRM_Editoer program. Unlide SquadGen, it uses netCDF refinement maps 
+      instead of a PNG image and the grid rotations occur before refinement rather 
+      than after refinement. 
+
+      To add the ability for users to manually edit grid cube values using 
+      VRM_Editor/Create_VRMgrid, an ability to write the text files was added 
+      to VRM_Editor and to read the text files was added to Create_VRMgrid. 
+
+      Once a grid has been generated, A new option in the Action menu allows the
+      user to save the text file containing the refinement levels on the 
+      base-resolution cube grid. The user can then edit the file as desired and pass
+      it as an argument (along with the exact settings from the VRM_Editor) to 
+      Create_VRMgrid to generate the final EXODUS file. 
+     
+
+ (3) Additional FILL options for Polygon Editor
+  ==========================================================
+    * The Polygon editor now has 3 fill options:
+        "Fill All"     - The entire selected region is filled with the 
+                         given Value. 
+        "Fill MaxVal"  - Within the selected region The values are 
+                         set to the Maximum of the given value and the 
+                         current value in the refinement map. 
+        "Fill MinVal"  - Within the selected region The values are 
+                         set to the Minimum of the given value and the 
+                         current value in the refinement map. 
+
+      With these options, the user can make fine adjustments to the 
+      refinement map to remove blemishes in the grid and to clean up 
+      transition regions so they a uniform around the refinement region. 
+
+
+ (4) Additional FILL options for Rectangle Editor
+  ==========================================================
+    * To be consistent with the Polygon editor, the same FILL 
+      options were added for the Rectangle editor. 
+
+
+
+
+
+===================
+  KNOWN ISSUES: 
+===================
+
+ (1)  VRM_Editor crashes ~randomly~
+  ===================================
+    * The pattern of failure is consistent with a memory leak 
+      problem. SQuagGen was not originally developed for interactive 
+      use, so it may not be releasing memory cleanly.
+      But: the origin of the problem is unknown. 
+
+    Update: Found that the user interface was too sensitive and, depending 
+            on the cursor input, generated a surious event to change the 
+            Grid_Type to Icosahedral just as the Generate_VarMesh button 
+            is clicked. Since that Grid_Type is not fully functional in 
+            SQuadGen, this caused a failure.
+    
+            The interface was made less sensitive and the VRM_Editor is
+            less prone to crashing. 
+
+     * STILL FAILS: Though the program is more stable, the fix did not 
+                    eliminate the failures completely. The SPRING smoothing
+                    code fails for certain (rare) combinations of grid rotations 
+                    smoothing options. 
+             As the code processes grid line segements, each segment should have 
+             only two faces associated with it. At failure, it ends up with a 
+             segement with more than 2 faces associated with it. 
+
+
+  (2) Polar Grids are Cumbersome to edit
+  =======================================
+    * The Cylindrical view makes editing a bit cumbersome. Adding alternalte
+      views (e.g. polar) for editing would be helpful.
+
+  
+  (3) Rotations Before and After Refinement
+  =========================================
+    * The grid rotations in VRM_Editor are done BEFORE refinement while the 
+      rotations in SQuadGen are done AFTER refinement. Being able to rotate
+      the grid after the refinement in VRM_Editor may be useful for some 
+      applications.
+

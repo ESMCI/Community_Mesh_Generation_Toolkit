@@ -349,7 +349,7 @@ void VrmGrid::SetPolyVal(QPolygonF *I_poly, double I_val, const QString &I_FillM
                 if(Lon <             0            ) {Lon += refineMapEdit.nRefLon; }
                 if(Lon > (refineMapEdit.nRefLon-1)) {Lon -= refineMapEdit.nRefLon; }
 
-                std::cout << " SetPolyVal: I_FillMode = " << I_FillMode.toStdString() << std::endl;
+//DIAG                std::cout << " SetPolyVal: I_FillMode = " << I_FillMode.toStdString() << std::endl;
                 if(I_FillMode == "Fill All") {
                     refineMapEdit.val[Lon][Lat] = I_val;
                 } else if(I_FillMode == "Fill MaxVal") {
