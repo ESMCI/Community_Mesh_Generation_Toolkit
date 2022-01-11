@@ -506,7 +506,16 @@ void RefinementCube::Normalize()
 
 void RefinementCube::read(const char *szFile)
 {
+    FILE * fp = fopen(szFile, "r");
 
+    for (int p = 0; p < 6; p++) {
+    for ( int j = val.GetColumns()-1; j >= 0; j--) {
+      for (unsigned int i = 0; i < val.GetColumns(); i++) {
+        fscanf(fp, "%i ", &(val[p][i][j]));
+      }
+    }
+    }
+    fclose(fp);
 }
 
 void RefinementCube::write(const char *szFile) const
@@ -515,7 +524,7 @@ void RefinementCube::write(const char *szFile) const
 
     for( int p=0; p<6; p++) {
     for( int j=val.GetColumns()-1; j >= 0; j--) {
-        for( int i=0; i < val.GetColumns(); i++) {
+        for(unsigned int i=0; i < val.GetColumns(); i++) {
             fprintf(fp, "%i ", val[p][i][j]);
         }
         fprintf(fp, "\n");

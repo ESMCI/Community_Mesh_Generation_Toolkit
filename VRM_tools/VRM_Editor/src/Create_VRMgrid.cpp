@@ -42,6 +42,8 @@ int main(int argc, char** argv)
     int         MySmoothIterations   = 0;
     std::string MyRefineFile         = "NULL";
     std::string MyOutputFile         = "NULL";
+    std::string MyRefineCube         = "NULL";
+    bool        LoadRefinementCube   = false;
 
     RefinementMap  refineMap;
     RefinementCube refineCube;
@@ -77,6 +79,7 @@ try {
        CommandLineDouble (MyGridLonShift      ,"lon_shift"     ,0.0);
        CommandLineString (MyRefineFile        ,"refine_file"   ,"NULL");
        CommandLineString (MyOutputFile        ,"output"        ,"NULL");
+       CommandLineString (MyRefineCube        ,"refine_cube"   ,"NULL");
 
        ParseCommandLine(argc, argv);
     EndCommandLine(argv)
@@ -92,6 +95,12 @@ try {
     if(MyRefineFile == "NULL") {
       std::cout << argv[0] << ": No refinement file specified" << std::endl;
       return(-1);
+    }
+
+    if(MyRefineCube == "NULL") {
+      LoadRefinementCube   = false;
+    } else {
+      LoadRefinementCube   = true;
     }
 
     // Read in Refinement Map
@@ -176,6 +185,9 @@ try {
     //---------------------------------------
     refineCube.resize(nResolution, MyRefinementLevel, MyGridLonShift, MyGridXRotate, MyGridYRotate);
     refineCube.loadCubeVals(refineMap);
+    if(LoadRefinementCube) {
+      refineCube.read(MyRefineCube.c_str());
+    }
     refineCube.Normalize();
 
     // Perform Refinement if requested

@@ -1,0 +1,837 @@
+
+
+====================================================================
+(1) Get the CESM Model tag and the VRM_tools from GitHub
+
+    OPTIONALLY: For NUDGED and/or MUSICA/CAM-chem runs get the 
+                Meteorological_Reanalysis_Data processing scripts 
+                as well.
+====================================================================
+
+$(USER_DIR) == the users directory
+
+Create Working Directory:  $(USER_DIR)/AMWG_DEMO_FEB21
+
+----------------------
+--> Get the CESM model
+----------------------
+cheyenne% mkdir src
+cheyenne% cd src
+cheyenne% mkdir cesm2_2_rel
+cheyenne% git clone https://GitHub.com/escomp/cesm.git cesm2_2_rel
+cheyenne% cd cesm2_2_rel
+cheyenne% git checkout release-cesm2.2.0
+cheyenne% ./manage_externals/checkout_externals
+
+
+----------------------
+--> Get the VRM_tools
+----------------------
+cheyenne% cd $(USER_DIR)/AMWG_DEMO_FEB21/src
+cheyenne% mkdir Community_Mesh_Generation_Toolkit
+cheyenne% git clone https://GitHub.com/ESMCI/Community_Mesh_Generation_Toolkit.git
+
+
+-------------------------------------------------------------
+--> Get the Meteorological_Reanalysis_Data processing scripts
+-------------------------------------------------------------
+cheyenne% cd $(USER_DIR)/AMWG_DEMO_FEB21/src
+cheyenne% mkdir IPT
+cheyenne% git clone https://GitHub.com/NCAR/IPT.git
+
+
+----------------------------------------------------
+Now a listing of the src directory should look like:
+----------------------------------------------------
+cheyenne% cd $(USER_DIR)/AMWG_DEMO_FEB21/src
+cheyenne% ls -F *
+
+cesm2_2_rel:
+ChangeLog           cime/         CODE_OF_CONDUCT.md  describe_version* 
+Externals.cfg       LICENSE.txt        README.rst
+ChangeLog_template  cime_config/  components/         doc/               
+Externals_cime.cfg  manage_externals/
+
+Community_Mesh_Generation_Toolkit:
+LICENSE.txt  VRM_tools/
+
+IPT:
+Emissions/  Initial_conditions/  LICENSE  
+Meterological_Reanalysis_Data/  README.md
+
+
+
+====================================================================
+(2) Build the pre-requisite executables
+====================================================================
+
+
+-------------------------------
+--> Build VRM_Editor on Casper
+-------------------------------
+cheyenne% execdav
+casper% cd Community_Mesh_Generation_Toolkit/VRM_tools/VRM_Editor/src
+casper% module load gnu/9.1.0
+casper% qmake-qt5 VRM_Editor.pro
+casper% make
+
+  ----------
+  **NOTE**:  The editor can now be run in this directory:
+  ----------    casper% ./VRM_Editor
+             The editor is not as prone to crashing when running on Casper
+             but users will need to be patient with latency when using
+             the mouse.
+             * When running on the VRM_Editor on Casper, be sure to re-load
+               the gnu/9.1.0 module first:
+               casper% module list
+
+                 Currently Loaded Modules:
+                   1) ncarenv/1.3    2) gnu/9.1.0      3) ncarcompilers/0.5.0
+                   4) netcdf/4.7.4   5) openmpi/4.0.5
+
+         -------------------------------
+         -->  VRM_Editor For Linux/Mac
+         -------------------------------
+             For Linux users, with the Qt and netCDF pacakges installed,
+             building the editor is just as simple as for Casper.
+             For Mac users.... not so much, the pre-built executable in the
+             MAC_exe directory should work for now.
+
+         *** For details on Linux/MAC see the documentation in:
+
+               Community_Mesh_Generation_Toolkit/VRM_tools/Docs/VRM_Grids_For_CAMSE.pdf
+
+
+-------------------------------
+--> Build Gen_ControlVolumes.exe
+-------------------------------
+cheyenne% cd $(VRM_tools)/VRM_ControlVolumes/src
+cheyenne% module list                {check what compiler is set}
+
+Currently Loaded Modules:
+  1) ncarenv/1.3   2) intel/19.0.5   3) ncarcompilers/0.5.0   
+  4) mpt/2.22      5) netcdf/4.7.4
+
+cheyenne% module load gnu             {switch to GNU compiler}
+cheyenne% module list
+
+Currently Loaded Modules:
+  1) ncarenv/1.3   2) gnu/9.1.0   3) ncarcompilers/0.5.0   
+  4) netcdf/4.7.4  5) mpt/2.22
+
+cheyenne% make
+cheyenne% module load intel           {switch back to default}
+
+  ----------
+  **NOTE**:  Be sure to use the gnu compiler here. Also, note
+  ---------- the $(VRM_tools) short-hand, it will be used from now on.
+
+
+-------------------------------
+--> Build mksurfdata_map
+-------------------------------
+cheyenne% cd $(AMWG_DEMO_FEB21)/src/cesm2_2_rel/components/clm/tools/mksurfdata_map/src
+cheyenne% module load ncl
+cheyenne% module list
+
+Currently Loaded Modules:
+  1) ncarenv/1.3   2) intel/19.0.5   3) ncarcompilers/0.5.0   
+  4) netcdf/4.7.4  5) ncl/6.6.2      6) mpt/2.22
+
+cheyenne% setenv LIB_NETCDF $NCAR_LDFLAGS_NETCDF
+cheyenne% setenv INC_NETCDF $NCAR_INC_NETCDF
+cheyenne% gmake
+
+
+-------------------------------
+--> Build mkmapdata fix
+-------------------------------
+  ----------
+  **NOTE**:  The PDF document refers to a fix that was needed here. For cesm 2.2
+  ---------- this is no longer needed.
+
+
+-------------------------------
+--> Build gen_domains
+-------------------------------
+cheyenne% cd $(AMWG_DEMO_FEB21)/src/cesm2_2_rel/cime/tools/mapping/gen_domain_files/src
+cheyenne% module list
+
+Currently Loaded Modules:
+  1) ncarenv/1.3   2) intel/19.0.5   3) ncarcompilers/0.5.0   
+  4) netcdf/4.7.4  5) ncl/6.6.2      6) mpt/2.22
+
+cheyenne% ../../../configure --macros-format Makefile --mpilib mpi-serial
+cheyenne% (source ./.env_mach_specific.csh ; gmake)
+
+-------------------------------
+--> Build interpic
+-------------------------------
+cheyenne% cd $(AMWG_DEMO_FEB21)/src/cesm2_2_rel/components/cam/tools/interpic_new
+cheyenne% module load ncl
+cheyenne% module list
+
+Currently Loaded Modules:
+  1) ncarenv/1.3   2) intel/19.0.5   3) ncarcompilers/0.5.0   
+  4) netcdf/4.7.4  5) mpt/2.22       6) ncl/6.6.2
+
+cheyenne% setenv LIB_NETCDF $NCAR_LDFLAGS_NETCDF
+cheyenne% setenv INC_NETCDF $NCAR_INC_NETCDF
+cheyenne% gmake
+
+  ----------
+  **NOTE**:  At this point, the all of the CESM tools are ready for use
+  ---------- to create a new Variable Resolution grid.
+
+
+====================================================================
+(3) Create a new VR grid
+====================================================================
+
+cheyenne% execdav
+casper% cd $(AMWG_DEMO_FEB21)/src/Community_Mesh_Generation_Toolkit/VRM_tools/VRM_Editor/src
+casper% module load gnu/9.1.0
+casper% ./VRM_Editor
+
+  ----------
+  **NOTE**:
+  ----------
+   The example grid will be an ne30 grid with a ne120 refinement centered
+   over South America in which the refinement region is a rectangle that is
+   quasi-aligned with the rectangular grid of the cube face.
+    (equi-distant w.r.t. great circle lengths)
+
+     The nomenclature for the resulting EXODUS file is:
+
+          SAMGRID01_ne30x4_EXODUS.nc
+
+   -----------
+   VRM_Editor:
+   -----------
+     As a general rule, we always want to try and center the refined region
+     on a cube face. For this grid, that means S.America.
+     -Create a default grid - click ->Generate VarMesh
+     -Zoom in on S. America
+     -Set the grid rotation values to center on S.America:
+        Lon = 30. , X = 21.                  ->Generate VarMesh
+     - The grid line now provide a guide for creating the
+       rectangular region.
+         Use the Polygon Editor create the refinement region.
+
+           SAVE:  Actions -> Save Refinement Map
+                   ---> REFMAP_SAMGRID01_Z30-X21
+
+     - Create initial grid: CUBIT/NOSMOOTH/ Refine=2
+
+        
+       ----------
+       **NOTE**:   {SEE: Img_SAMGRID01_1.png}
+       ----------  The geometric structure of the templates used
+                   For transition elements.
+                   Note also, that the transition region(ne60) is small
+                   and not uniform around the perimeter.
+
+
+     - Two settings that help with this are the Refine Type and Smoothing
+       options. The LOWCONN uses templates that span 2x2 base elements to
+       transition between resolutions, and the SPRING smoothing rounds out
+       the element shapes to ~reduce~ sharp angles.
+
+           LOWCONN  SPRING: 3@3
+
+           SAVE:  Actions -> Write Exodus File
+                   ---> SAMGRID01_ne30x4_EXODUS.nc
+
+       ----------
+       **NOTE**:   {SEE: Img_SAMGRID01_2.png}
+       ----------  The smooth and uniform nature of the transition around
+                   the perimeter.
+                   A good rule of thumb: The nicer the grid looks, the more
+                   uniform and symmetric it is, the better it tends to behave
+                   numerically.
+
+                   For some uses, the width of the transition region does
+                   not matter (e.g. nudged boundary conditions). In other
+                   cases it is desirable to have a more gradual transition
+                   between the high and low res regions.
+
+     - Use the polygon editor to add a 0.5 halo around the region.
+       ----------
+       **NOTE**:   {SEE: Img_SAMGRID01_3.png}
+       ----------  The resulting grid extends the transition but uniformity
+                   and symmetry are out the window. The command line program
+                   offers a method to fix this sort of behavior.
+                   As an alternative to this, slight modifications to the
+                   rotation angles will change the roundoffs in the
+                   refinement software which leads to better/worse behavior.
+                   Iteratively adjusting these values invariably leads to
+                   a well behaved grid.
+
+                   In this case: X=22.5 Lon=30.7
+
+                   {SEE: Img_SAMGRID01_4.png}
+
+           SAVE:  Actions -> Save Refinement Map
+                   ---> REFMAP_SAMGRID01_Z30.7-X22.5-HALO
+
+           SAVE:  Actions -> Write Exodus File
+                   ---> SAMHALO01_ne30x4_EXODUS.nc
+
+
+
+====================================================================
+(4) Create a REPO directory for the new grid;
+    Copy the EXODUS and REFMAP files to the REPO.
+NOTATION: $(AMWG_DEMO_FEB21) == $(USER_DIR)/AMWG_DEMO_FEB21
+NOTATION: $(AMWG_REPO)       == $(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO
+====================================================================
+
+cheyenne% mkdir $(AMWG_DEMO_FEB21)/AMWG_REPO
+cheyenne% mkdir $(AMWG_DEMO_FEB21)/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/
+cheyenne% mkdir $(AMWG_DEMO_FEB21)/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/grids
+
+cheyenne% cp SAMGRID01_ne30x4_EXODUS.nc $(AMWG_DEMO_FEB21)/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/grids
+cheyenne% cp REFMAP_SAMGRID01_Z30-X21.nc $(AMWG_DEMO_FEB21)/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/grids
+
+cheyenne% ls -F $(AMWG_DEMO_FEB21)/AMWG_REPO/*/*
+
+$(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/grids:
+REFMAP_SAMGRID01_Z30-X21.nc  SAMGRID01_ne30x4_EXODUS.nc
+
+
+====================================================================
+(5) Create VR grids from EXODUS file
+====================================================================
+
+   -------------------------------
+   Create SCRIP/LATLON grid files:
+   -------------------------------
+     cheyenne% cd $(AMWG_DEMO_FEB21)/src/Community_Mesh_Generation_Toolkit/VRM_tools/VRM_ControlVolumes/src
+     cheyenne% cp input.nl input.nl-ORIG
+     cheyenne% vi input.nl
+
+     - Set the namelist values to point to the new SAMGRID01 grid file and then run the
+       Gen_ControlVolumes program.
+
+           &input_nl
+             GridPath = '$(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/grids/'
+             GridName = 'SAMGRID01_ne30x4'
+           /
+
+     cheyenne% module load gnu
+     cheyenne% module list
+
+Currently Loaded Modules:
+  1) ncarenv/1.3   2) gnu/9.1.0   3) ncarcompilers/0.5.0   
+  4) netcdf/4.7.4  5) ncl/6.6.2   6) mpt/2.22
+   
+     cheyenne% ./Gen_ControlVolumes.exe input.nl > LOG_SAMGRID01.ne30x4                  [ ~2 seconds to run]
+     cheyenne% ls $(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/grids
+
+          REFMAP_SAMGRID01_Z30-X21.nc     SAMGRID01_ne30x4_EXODUS.nc
+          SAMGRID01_ne30x4_np4_LATLON.nc  SAMGRID01_ne30x4_np4_SCRIP.nc
+
+     - Get the number of columns in the new grid:
+
+     cheyenne% ncdump $(AMWG_DEMO_FEB21)/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/grids/SAMGRID01_ne30x4_np4_LATLON.nc | grep ncol
+
+           ncol = 116534 ;        <--- WE NEED THIS NUMBER!
+           double lat(ncol) ;
+           double lon(ncol) ;
+           double area(ncol) ;
+
+
+   ----------------------
+   Create MESH grid file:
+   ----------------------
+     cheyenne% cd $(AMWG_DEMO_FEB21)/src/Community_Mesh_Generation_Toolkit/VRM_tools/gen_ESMFmesh/
+     cheyenne% setenv VRM_CESM_TAG  "$(USER_DIR)/AMWG_DEMO_FEB21/src/cesm2_2_rel/"
+     cheyenne% setenv VRM_REPO_PATH "$(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO/"
+     cheyenne% setenv VRM_GRID_TAG  "SAMGRID01_ne30x4"
+     cheyenne% setenv VRM_GRID_NAME "ne0np4.SAMGRID01.ne30x4"
+     cheyenne% setenv VRM_GRID_NCOL "116534"
+     cheyenne% setenv VRM_DATE      "210207"
+
+       ----------
+       **NOTE**:   The majority of the steps from here on involve a process in which
+       ----------  a configuration script is run first. It uses these environment
+                   variables to generate the scripts that process the needed data.
+                   See the file REQUIRED_ENV_SETTINGS in the $(VRM_tools) directory
+                   for more info.
+
+                   Set VRM_DATE to the current date and keep in unchanged throughout
+                   the following steps. This over-rides the date stamp that is generated
+                   by default. --- which caused scripting problems if the user did not 
+                                   complete all VR data processing on the same calendar 
+                                   date.
+
+     cheyenne% ./MAKE_ESMFmesh_script.csh
+     cheyenne% execdav
+     casper% cd ne0np4.SAMGRID01.ne30x4
+     casper% chmod 744 gen_ESMFmesh_SAMGRID01_ne30x4.sh
+     casper% ./gen_ESMFmesh_SAMGRID01_ne30x4.sh >& LOG_SAMGRID01_ne30x4              [ ~2 seconds]
+
+     casper% ls $(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/grids
+
+           REFMAP_SAMGRID01_Z30-X21.nc   SAMGRID01_ne30x4_np4_LATLON.nc  
+           SAMGRID01_ne30x4_np4_SCRIP.nc SAMGRID01_ne30x4_EXODUS.nc      
+           SAMGRID01_ne30x4_np4_MESH.nc
+
+       ----------
+       **NOTE**:   Now all of the needed grid files are complete.
+       ----------
+
+
+====================================================================
+(6) Create VR Datasets
+NOTATION: $(VRM_tools) == $(USER_DIR)/AMWG_DEMO_FEB21/src/Community_Mesh_Generation_Toolkit/VRM_tools
+====================================================================
+
+   ----------------------
+   gen_mapping
+   ----------------------
+   cheyenne% module load ncl
+   cheyenne% module load intel
+   cheyenne% module list
+
+Currently Loaded Modules:
+  1) ncarenv/1.3   2) intel/19.0.5   3) ncarcompilers/0.5.0   
+  4) netcdf/4.7.4  5) ncl/6.6.2      6) mpt/2.22
+
+   cheyenne% cd $(VRM_tools)/gen_mapping
+   cheyenne% ./MAKE_genMapping_scripts.csh
+   cheyenne% cd ne0np4.SAMGRID01.ne30x4/
+   cheyenne% qcmd -- 'sh gen_mapping_SAMGRID01_ne30x4_01.sh >& LOG_SAMGRID01_ne30x4_01'  [ ~25 seconds ]
+   cheyenne% qcmd -- 'sh gen_mapping_SAMGRID01_ne30x4_02.sh >& LOG_SAMGRID01_ne30x4_02'  [ ~40 seconds ]
+   cheyenne% qcmd -- 'sh gen_mapping_SAMGRID01_ne30x4_03.sh >& LOG_SAMGRID01_ne30x4_03'  [ ~2:20 to run]
+
+   cheyenne% ls $(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/
+
+      grids/  maps/
+
+       ----------
+       **NOTE**:   There is now a maps/ directory in the REPO with interpolation weights between
+       ----------  various grids and the SAMGRID01 grid.
+
+
+   ----------------------
+   gen_domain
+   ----------------------
+   cheyenne% module load ncl
+   cheyenne% module load intel
+   cheyenne% module list
+
+Currently Loaded Modules:
+  1) ncarenv/1.3   2) intel/19.0.5   3) ncarcompilers/0.5.0   
+  4) netcdf/4.7.4  5) ncl/6.6.2      6) mpt/2.22
+
+   cheyenne% cd $(VRM_tools)/gen_domain
+   cheyenne% ./MAKE_genDomains_scripts.csh
+   cheyenne% cd ne0np4.SAMGRID01.ne30x4/
+   cheyenne% qcmd -- 'sh genDomains_SAMGRID01_ne30x4_gx1v7.sh   >& LOG_SAMGRID01_ne30x4_gx1v7'   [~0:20 to run]
+   cheyenne% qcmd -- 'sh genDomains_SAMGRID01_ne30x4_tx0.1v2.sh >& LOG_SAMGRID01_ne30x4_tx0.1v2' [~7:30 to run]
+
+   cheyenne% ls $(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/
+
+      domains/  grids/  maps/
+
+       ----------
+       **NOTE**:   There is now a domains/ directory in the REPO with domain
+       ----------  files for gx1v7 and tx0.1v2
+
+                   Check LOG files!. If you get an error loading shared libraries: libiomp5.so
+                   the the GNU compiler is loaded instead of INTEL.
+
+
+   ----------------------
+   gen_CLMsrfdata
+   ----------------------
+   cheyenne% module load intel
+   cheyenne% module list
+
+Currently Loaded Modules:
+  1) ncarenv/1.3   2) intel/19.0.5   3) ncarcompilers/0.5.0   
+  4) netcdf/4.7.4  5) ncl/6.6.2      6) mpt/2.22
+
+   cheyenne% cd $(VRM_tools)/gen_CLMsrfdata
+   cheyenne% ./MAKE_genCLMsurfdata_script.csh
+   cheyenne% cd ne0np4.SAMGRID01.ne30x4/
+   cheyenne% vi genCLMsurfdata_SAMGRID01_ne30x4.sh       <---- MUST SET A PROJECT NUMBER!
+  
+   cheyenne% qsub < genCLMsurfdata_SAMGRID01_ne30x4.sh                [ ~1:00:00 one hour for this grid]
+
+   cheyenne% ls $(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/
+
+      clm_surfdata_5_0/  domains/  grids/  maps/
+
+       ----------
+       **NOTE**:   There is now a clm_surfdata_5_0/ directory with a landuse files.
+       ----------
+
+   ----------------------
+   gen_CAMncdata
+   ----------------------
+   cheyenne% module load intel
+   cheyenne% module load ncl
+   cheyenne% module load nco
+   cheyenne% module list
+
+Currently Loaded Modules:
+  1) ncarenv/1.3   2) intel/19.0.5   3) ncarcompilers/0.5.0   
+  4) netcdf/4.7.4  5) mpt/2.22       6) ncl/6.6.2             7) nco/4.9.5
+
+   cheyenne% cd $(VRM_tools)/gen_CAMncdata
+   cheyenne% ./MAKE_interpic_script.csh
+   cheyenne% cd ne0np4.SAMGRID01.ne30x4/
+   cheyenne% qcmd -- 'sh interpic_script_SAMGRID01_ne30x4.sh >& LOG_SAMGRID01_ne30x4'       [~0:30 to run]
+
+   cheyenne% ls $(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/
+
+      clm_surfdata_5_0/  domains/  grids/  inic/  maps/
+
+       ----------
+       **NOTE**:   There is now a inic/ directory with a cami-* file for the new grid.
+       ----------
+
+
+   ----------------------
+   gen_atmsrf
+   ----------------------
+   cheyenne% module load intel
+   cheyenne% module load ncl
+   cheyenne% module list
+
+Currently Loaded Modules:
+  1) ncarenv/1.3   2) intel/19.0.5   3) ncarcompilers/0.5.0   
+  4) netcdf/4.7.4  5) mpt/2.22       6) ncl/6.6.2             7) nco/4.9.5
+
+   cheyenne% cd $(VRM_tools)/gen_atmsrf
+   cheyenne% ./MAKE_genAtmsrf_script.csh
+   cheyenne% cd ne0np4.SAMGRID01.ne30x4/
+   cheyenne% qcmd -- 'ncl gen_atmsrf_SAMGRID01_ne30x4.ncl >& LOG_SAMGRID01_ne30x4'      [~1:00 to run]
+
+   cheyenne% ls $(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/
+
+      atmsrf/  clm_surfdata_5_0/  domains/  grids/  inic/  maps/
+
+       ----------
+       **NOTE**:   There is now a atmsrf/ directory
+       ----------
+
+
+   ----------------------
+   gen_topo
+   ----------------------
+   cheyenne% module load ncl
+   cheyenne% module list
+   
+Currently Loaded Modules:
+  1) ncarenv/1.3   2) intel/19.0.5   3) ncarcompilers/0.5.0   
+  4) netcdf/4.7.4  5) mpt/2.22       6) ncl/6.6.2             7) nco/4.9.5
+
+   cheyenne% cd $(VRM_tools)/gen_topo/Regrid_topo
+   cheyenne% ./MAKE_RegridTopo_script.csh
+   cheyenne% cd ne0np4.SAMGRID01.ne30x4/
+   cheyenne% qcmd -- 'ncl Regrid_topo_SAMGRID01_ne30x4.ncl >& LOG_SAMGRID01_ne30x4'     [~0:30 to run]
+
+   cheyenne% ls $(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/
+
+      atmsrf/  clm_surfdata_5_0/  domains/  grids/  inic/  maps/  topo/
+
+       ----------
+       **NOTE**:   There is now a topo/ directory with an interpolated (from ne120) topography file.
+       ----------
+
+
+====================================================================
+(7) Generate TRUE topography
+====================================================================
+
+   ------------------------
+   Check out topo software
+   ------------------------
+   cheyenne% cd $(VRM_tools)/gen_topo
+   cheyenne% mkdir topo
+   cheyenne% git clone https://GitHub.com/NCAR/Topo.git topo             [ 15-20 Min for this to run]
+   cheyenne% cd topo
+   cheyenne% git checkout TopoCESM2
+
+   ------------------------------------------------
+   Configure for the new grid and run the program
+   ------------------------------------------------
+   cheyenne% execdav
+   casper% cp experiment_settings.make experiment_settings.make-ORIG
+   casper% vi experiment_settings.make
+
+     - Comment out the current 'export case=' line
+     - Add: export case=SAMGRID01.30_x4_C0060_ridge
+
+     - Add setting for this case:
+
+          ifeq ($(case),SAMGRID01.30_x4_C0060_ridge)
+            export ncube_sph_smooth_coarse=060
+            export output_grid=topo_ne0np4.SAMGRID01.ne30x4
+            export grid_descriptor_fname=$(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/grids/SAMGRID01_ne30x4_np4_SCRIP.nc
+            export nwindow_halfwidth=042
+            export rdgwin=_Nsw$(nwindow_halfwidth)
+            #export rdgwin=_NoAniso
+            export stitch=-stitch
+            export ncube=3000
+            export lregional_refinement=.true.
+            export rrfac_max=4
+            case_found=
+          endif
+
+       ----------
+       **NOTE**:   Use the ARCTIC/CONUS setting as a guide.
+       ----------  The rrfac_max must match the refinement level.
+
+
+   casper% module load gnu
+   casper% module list
+
+Currently Loaded Modules:
+  1) ncarenv/1.3   2) gnu/9.1.0   3) ncarcompilers/0.5.0   
+  4) netcdf/4.7.4  5) openmpi/4.0.5
+  
+   casper% make                                              [ ~1:45:00 to run]
+
+   ---------------------------
+   Copy topo file to the REPO
+   ---------------------------
+   casper% cd cube_to_target/output
+   casper% cp topo_ne0np4.SAMGRID01.ne30x4_nc3000_Co060_Fi001_MulG_PF_RR_Nsw042.nc $(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/topo/topo_ne0np4.SAMGRID01.ne30x4_nc3000_Co060_Fi001_MulG_PF_RR_Nsw042_210207.nc
+
+       ----------
+       **NOTE**:   When copying the topo file to the REPO, the VRM_DATE value must be added to
+       ----------  the end of the filename.
+
+
+====================================================================
+(8) Install the new Grid
+====================================================================
+
+   cheyenne% cd $(VRM_tools)/Install_grid/NEWTAGS
+
+       ----------
+       **NOTE**:   Set the default topo file to use:
+       ----------   DIAG Interp topo=> cheyenne% setenv VRM_TOPO_TAG "blin"
+                    TRUE topo file  => cheyenne% setenv VRM_TOPO_TAG "nc3000_Co060_Fi001_MulG_PF_RR_Nsw042"
+
+   cheyenne% setenv VRM_TOPO_TAG "nc3000_Co060_Fi001_MulG_PF_RR_Nsw042"
+   cheyenne% ./MAKE_install_script.csh
+   cheyenne% vi Install_grid_SAMGRID01_ne30x4.csh
+
+     - Edit the GRIDDESC value: Add a meaningful description of the new grid
+
+          set GRIDDESC   = "A rotated ne30 base grid with ne120 refinement over South America"
+
+   cheyenne% chmod 744 Install_grid_SAMGRID01_ne30x4.csh
+   cheyenne% ./Install_grid_SAMGRID01_ne30x4.csh
+
+   cheyenne% ls $(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/
+
+          atmsrf/  clm_surfdata_5_0/  config_grids.xml  domains/  grids/
+          inic/  maps/  shell_commands  topo/  user_nl_cam  user_nl_clm
+
+
+       ----------
+       **NOTE**:   This completes the process, the new grid is now ready for testing.
+       ----------
+                 * To change the default topography file after the installation script
+                   has been run: edit the 'user_nl_cam' file in
+
+                      $(AMWG_DEMO_FEB21)/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/
+
+                   and set the bnd_topo value.
+
+                 * The SE dycore namelist parameters are available in &dyn_se_inparm.
+                   The initial values set in this file generally work for a well
+                   behaved ne120 refined grid.
+
+                 * The default fsurdat value in user_nl_clm must be set by commenting
+                   out the desired case: (simyr2000 or simyr1850)
+
+                 * The default timestep and pelayout for the new grid are specified
+                   in the shell_commands file.
+
+
+====================================================================
+(9) Create a newcase and begin the process of adjusting timestep/namelist values.
+====================================================================
+
+   cheyenne% cd $(AMWG_DEMO_FEB21)/src/cesm2_2_rel/cime/scripts
+   cheyenne% ./create_newcase
+            --case $(USER_DIR)/AMWG_DEMO_FEB21/cases/f.e22r.SAMGRID01.ne30x4.AMWGtest_01
+            --res ne0np4.SAMGRID01.ne30x4_mt12 --compset FHIST --machine cheyenne --run-unsupported
+            --user-mods-dir $(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO/ne0np4.SAMGRID01.ne30x4
+
+       ----------
+       **NOTE**:   Typically the it is best to use the 'mt12' resolution option rather than 'mg17'
+       ----------  The new grid is picked up by the model by adding the --user-mods-dir option
+                   pointing to the REPO just created.
+
+                 * This REPO can be used by any users with read permission on the directory, and
+                   in general, will work for other CESM tags (that are compatible with version 2.2)
+
+
+   cheyenne% cd $(AMWG_DEMO_FEB21)/cases/f.e22r.SAMGRID01.ne30x4.AMWGtest_01
+   cheyenne% ./case.setup
+   cheyenne% vi env_workflow.xml
+
+      - Set WALLTIME to ~00:45:00
+
+   cheyenne% ./pelayout
+CPL :   1080/     1;      0
+ATM :   1080/     1;      0
+LND :   1080/     1;      0
+ICE :   1080/     1;      0
+OCN :   1080/     1;      0
+ROF :   1080/     1;      0
+GLC :   1080/     1;      0
+WAV :   1080/     1;      0
+IAC :      1/     1;      0
+ESP :      1/     1;      0
+
+   cheyenne% grep ATM_NCPL env_run.xml
+    <entry id="ATM_NCPL" value="144">
+    This is used to set the driver namelist atm_cpl_dt, equal to basedt/ATM_NCPL,
+    <entry id="LND_NCPL" value="$ATM_NCPL">
+    <entry id="ICE_NCPL" value="$ATM_NCPL">
+    <entry id="OCN_NCPL" value="$ATM_NCPL">
+    <entry id="WAV_NCPL" value="$ATM_NCPL">
+
+   cheyenne% qcmd -- ./case.build
+   cheyenne% ./case.submit
+
+
+
+
+
+====================================================================
+(10) Create nudging data for the new grid
+====================================================================
+
+   cheyenne% cd $(AMWG_DEMO_FEB21)/src/IPT/Meterological_Reanalysis_Data/Spectral_element_dycore/
+   cheyenne% cp -r Gen_Data_NEWGRID/ Gen_Data_ne0np4.SAMGRID01.ne30x4
+   cheyenne% cd Gen_Data_ne0np4.SAMGRID01.ne30x4/
+   cheyenne% mv Gen_MERRA2_NEWGRID.csh Gen_MERRA2_ne0np4.SAMGRID01.ne30x4.csh
+
+   ------------------------------------------------
+   Configure the processing script for 10 days of nudging data
+   ------------------------------------------------
+   cheyenne% vi Gen_MERRA2_ne0np4.SAMGRID01.ne30x4.csh
+
+    -Add/Change the following entries for the new grid:
+
+       #SBATCH -J Gen_MERRA2_SAMGRID01.csh
+       #SBATCH -A Pxxxxxxx
+       #SBATCH -e Log.Gen_MERRA2_SAMGRID01.err.%J
+       #SBATCH -o Log.Gen_MERRA2_SAMGRID01.out.%J
+       ## SBATCH --mail-user=ME@ucar.edu
+
+
+       set RUNNUM   = 01
+       set REF_DATE = '20121201'    <--- Keep this, we'll run a 5-day test from Dec 1, 2012
+       set NUM_DAYS = 10            <--- 10 days of nudging data
+
+
+       set NAMELIST = './Config/Config_makeIC-'$RUNNUM'.nl'
+       set MYLOGDIR  = './LOG/LOG_001.'$RUNNUM'/'
+       set MYTMPDIR  = './TMP/TMP_001.'$RUNNUM'/'
+       set MYOUTDIR  = '$(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/nudging/MERRA2/MERRA2_ne0np4.SAMGRID01.ne30x4_L32/'
+       
+
+       set CASE                   = 'MERRA2_ne0np4.SAMGRID01.ne30x4_L32'
+       
+       set fname_grid_info        = '$(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/inic/cami-mam4_0000-01-01_ne0np4.SAMGRID01.ne30x4_L32_c210207.nc'
+       set fname_phis_output      = '$(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/topo/topo_ne0np4.SAMGRID01.ne30x4_nc3000_Co060_Fi001_MulG_PF_RR_Nsw042_210207.nc'
+       
+
+   ------------------------------------------------
+   Add SCRIP file for the new grid
+   ------------------------------------------------
+   cheyenne% vi makeIC_se_002.ncl
+
+     -Add dstGridName
+   dstGridName="$(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/grids/SAMGRID01_ne30x4_np4_SCRIP.nc"
+
+
+   ------------------------------------------------
+   Add some directories that are needed
+   ------------------------------------------------
+   cheyenne% mkdir Config
+   cheyenne% mkdir TMP
+   cheyenne% mkdir TMP/TMP_001.01
+   cheyenne% mkdir LOG
+   cheyenne% mkdir LOG/LOG_001.01
+   cheyenne% mkdir $(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO/ne0np4.SAMGRID01.ne30x4/nudging
+
+
+   ------------------------------------------------
+   Run the script on Casper
+   ------------------------------------------------
+   cheyenne% execdav --time 24:00:00
+   casper% module load ncl
+   casper% ./Gen_MERRA2_ne0np4.SAMGRID01.ne30x4.csh > & OUTPUT_01 &
+   casper% grep 'SUCCESSFULLY COMPLETED' LOG/LOG_001.01/* | cat -n | tail -1
+       80  LOG/LOG_001.01/LogNCL.2012121075600:(0) SUCCESSFULLY COMPLETED PROCESSING
+   casper% ls LOG/LOG_001.01/* | cat -n | tail -1
+      160  LOG/LOG_001.01/LogNCL.2012121075600.cfg
+
+
+   ------------------------------------------------
+   Create a case for a  5-Day nudging test
+   ------------------------------------------------
+   cheyenne% cd $(AMWG_DEMO_FEB21)/src/cesm2_2_rel/cime/scripts
+   cheyenne% ./create_newcase
+            --case $(USER_DIR)/AMWG_DEMO_FEB21/cases/f.e22r.SAMGRID01.ne30x4.AMWGtest_02
+            --res ne0np4.SAMGRID01.ne30x4_mt12 --compset FHIST --machine cheyenne --run-unsupported
+            --user-mods-dir $(USER_DIR)/AMWG_DEMO_FEB21/AMWG_REPO/ne0np4.SAMGRID01.ne30x4
+
+   cheyenne% cd $(AMWG_DEMO_FEB21)/cases/f.e22r.SAMGRID01.ne30x4.AMWGtest_02
+   cheyenne% ./case.setup
+   cheyenne% vi env_workflow.xml
+
+      - Set WALLTIME to ~00:45:00
+
+   cheyenne% vi env_run.xml
+
+      - Set RUN_STARTDATE value="2012-12-01" 
+
+   ------------------------------------------------
+   Get a template with the nudging namelist values
+   ------------------------------------------------
+   cheyenne% cp $(USER_DIR)/AMWG_DEMO_FEB21/src/cesm2_2_rel/components/cam/tools/nudging/user_nl_cam-NUDGING_TEMPLATE ./
+   
+   cheyenne% cp user_nl_cam user_nl_cam-DEFAULT
+   cheyenne% vi user_nl_cam-NUDGING_TEMPLATE
+     -Set nudging values for the new data
+
+   cheyenne% cat user_nl_cam-NUDGING_TEMPLATE >> user_nl_cam
+   cheyenne% vi user_nl_cam
+     -Change ncdata to start from nudging file on Dec 1, 2012
+
+
+   ------------------------------------------------
+   Build and Run
+   ------------------------------------------------
+   cheyenne% qcmd -- ./case.build
+   cheyenne% ./case.submit
+
+
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+

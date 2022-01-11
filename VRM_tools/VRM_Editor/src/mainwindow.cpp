@@ -73,8 +73,8 @@ MainWindow::MainWindow(QWidget *parent) :
     mypal.setColor(QPalette::Background,mycol);
     ui->cubeMapColorVal->setPalette(mypal);
 
-    connect( vrmWin->polyEdit_Item, SIGNAL(do_SetPolyVal(QPolygonF*,double)),
-            &vrmGrid              , SLOT  (   SetPolyVal(QPolygonF*,double)));
+    connect( vrmWin->polyEdit_Item, SIGNAL(do_SetPolyVal(QPolygonF*,double,const QString&)),
+            &vrmGrid              , SLOT  (   SetPolyVal(QPolygonF*,double,const QString&)));
     connect( vrmWin->polyEdit_Item, SIGNAL(do_SceneUpdate()),
              this                 , SLOT  (do_SceneUpdate()));
     connect( vrmWin->rectEdit_Item, SIGNAL(do_SceneUpdate()),
@@ -626,6 +626,37 @@ void MainWindow::on_actionWrite_Exodus_File_triggered()
     //--------------------------------
     std::string ExodusName =  ExodusFile.toStdString();
     Write_Exodus_File(ExodusName , VRM, vrmGrid.refineMap, vrmGrid.refineGrid);
+
+}
+
+void MainWindow::on_actionWrite_Refinement_Grid_triggered()
+{
+
+    // If the application is in EDIT mode, this action must be ignored
+    //-----------------------------------------------------------------
+    if( ui->beginEditMode->isChecked()) {
+        std::cout << "Can't Write an Exodus File while in EDIT mode." << std::endl;
+        return;
+    } else {
+        std::cout << " Not Checked?" << std::endl;
+    }
+
+    //######################################################################################
+    // NEED A TEST OF refineGrid STATUS - calc_VarMesh() need to be called at least 1 time.
+    //######################################################################################
+
+    // Get the desired file from the user.
+    //-------------------------------------
+    QString GridFile = QFileDialog::getSaveFileName(this,"Write Refinement Cube to ASCII File",
+                                                      QDir::currentPath(),"All files (*.*)");
+
+    // return if no file was selected
+    //--------------------------------
+    if(GridFile.isEmpty()) { return; }
+
+    // Output to a NetCDF Exodus file
+    //--------------------------------
+    vrmGrid.refineCube.write(GridFile.toStdString().c_str());
 
 }
 
@@ -1244,6 +1275,11 @@ void MainWindow::on_polyEditVal_valueChanged(double arg1)
      vrmWin->polyEdit_Item->setVal(arg1);
 }
 
+void MainWindow::on_polyFillMode_currentIndexChanged(const QString &arg1)
+{
+    vrmWin->polyEdit_Item->Set_FillOpt( arg1 );
+}
+
 void MainWindow::on_resetPolyButton_clicked()
 {
     double x0 = vrmView->getLon0();
@@ -1280,7 +1316,7 @@ void MainWindow::on_applyPolyButton_clicked()
     QPolygonF *MyPoly;
     MyPoly = new QPolygonF(vrmWin->polyEdit_Item->mapToScene(vrmWin->polyEdit_Item->polygon()));
     double MyVal = vrmWin->polyEdit_Item->Val();
-    vrmGrid.SetPolyVal(MyPoly,MyVal);
+    vrmGrid.SetPolyVal(MyPoly,MyVal, vrmWin->polyEdit_Item->Get_FillOpt());
     vrmWin->update_scene( &vrmGrid);
 }
 
@@ -1369,3 +1405,4 @@ void MainWindow::on_applyRectButton_clicked()
                        vrmWin->rectEdit_Item->Get_FillVal() ,vrmWin->rectEdit_Item->Get_FillOpt() );
     vrmWin->update_scene( &vrmGrid);
 }
+

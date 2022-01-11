@@ -18,6 +18,17 @@ void PolyEditItem::setVal(double I_val)
     MyVal = I_val;
 }
 
+QString PolyEditItem::Get_FillOpt()
+{
+    return MyFillOpt;
+}
+
+void PolyEditItem::Set_FillOpt(const QString &I_FillOpt)
+{
+    MyFillOpt = I_FillOpt;
+    std::cout << " Changed PolyFillOpt = " << MyFillOpt.toStdString() << std::endl;
+}
+
 void PolyEditItem::UpdatePolygon(QPolygonF I_poly)
 {
     QPolygonF MyPoly = I_poly;
@@ -75,7 +86,7 @@ void PolyEditItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     if(event->button() == Qt::RightButton) {
         QPolygonF *MyPoly;
         MyPoly = new QPolygonF(this->mapToScene(this->polygon()));
-        emit do_SetPolyVal( MyPoly, MyVal);
+        emit do_SetPolyVal( MyPoly, MyVal, MyFillOpt);
         emit do_SceneUpdate();
         event->accept();
 

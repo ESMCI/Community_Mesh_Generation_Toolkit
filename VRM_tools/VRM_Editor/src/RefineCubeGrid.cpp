@@ -506,7 +506,9 @@ void RefineGrid( NodeVector            &vecNodes,
     // Verify resolution of base mesh
     //-------------------------------
     int nBaseResolution = refCube.GetBaseResolution();
+
     if (vecFaces.size() != 6 * nBaseResolution * nBaseResolution) {
+      printf("ReginfGrid DIAG: nBaseResolution= %i , %i , vecFaces.size= %i \n", nBaseResolution, (6*nBaseResolution*nBaseResolution),vecFaces.size());
     _EXCEPTIONT("Inconsistency between RefinementMap and base mesh");
     }
     

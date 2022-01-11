@@ -17,6 +17,7 @@ bool VrmGrid::calc_VarMesh()
     FaceVector vecFaces;
     int nResolution = MyResolution;
 
+    std::cout << " BEGIN calc_VarMesh() ===================================== "<< std::endl;
 
     // Check for odd resolution for LOWCONN refile types
     //----------------------------------------------------
@@ -34,10 +35,13 @@ bool VrmGrid::calc_VarMesh()
 
     // Generate Base Grid
     //----------------------------
+    std::cout << " MyGridType = "<< MyGridType.toStdString() << std::endl;
     if(MyGridType == "CubeSquared") {
-//        std::cout << " GridType = CubeSquared" << std::endl;
-//        std::cout << " nResolution = "<< nResolution << std::endl;
+      std::cout << " GridType = CubeSquared" << std::endl;
+      std::cout << " nResolution = "<< nResolution << std::endl;
+      std::cout << " Before Gen vecFaces size = "<< vecFaces.size() << std::endl;
         GenerateCubedSphere( nResolution, vecNodes, vecFaces);
+      std::cout << " After Gen vecFaces size = "<< vecFaces.size() << std::endl;
     } else if (MyGridType == "Icosahedral") {
 //        std::cout << " GridType = Icosahedral" << std::endl;
 //        std::cout << " nResolution = "<< nResolution << std::endl;
@@ -89,16 +93,15 @@ bool VrmGrid::calc_VarMesh()
     // Store Base grid values
     //-------------------------
     baseGrid.loadGrid(vecNodes, vecFaces);
-//    std::cout << " baseGrid nodes set N= "<< vecNodes.size() << " : " << baseGrid.Nodes.size() << std::endl;
-//    std::cout << " baseGrid faces set N= "<< vecFaces.size() << " : " << baseGrid.Faces.size() << std::endl;
-//    std::cout << " baseGrid grid  set N= " << baseGrid.Grid.size() << std::endl;
+  std::cout << " baseGrid nodes set N= "<< vecNodes.size() << " : " << baseGrid.Nodes.size() << std::endl;
+  std::cout << " baseGrid faces set N= "<< vecFaces.size() << " : " << baseGrid.Faces.size() << std::endl;
+  std::cout << " baseGrid grid  set N= " << baseGrid.Grid.size() << std::endl;
 
     // Initialize the reference Cube values
     //---------------------------------------
     refineCube.resize(nResolution, MyRefinementLevel, MyGridLonShift, MyGridXRotate, MyGridYRotate);
     refineCube.loadCubeVals(refineMap);
     refineCube.Normalize();
-//    refineCube.write( "refine_map.dat");
 
     // Perform Refinement if requested
     //----------------------------------
@@ -214,6 +217,7 @@ QString VrmGrid::Get_GridType()
 void VrmGrid::Set_GridType(const QString &I_GridType)
 {
     MyGridType = I_GridType;
+    std::cout << " CHANGED: MyGridType = " << MyGridType.toStdString() << std::endl;
 }
 
 int VrmGrid::Get_Resolution()
@@ -316,7 +320,7 @@ void VrmGrid::Set_ReverseOrientation(bool I_ReverseOrientation)
     MyReverseOrientation = I_ReverseOrientation;
 }
 
-void VrmGrid::SetPolyVal(QPolygonF *I_poly, double I_val)
+void VrmGrid::SetPolyVal(QPolygonF *I_poly, double I_val, const QString &I_FillMode)
 {
     int     iLon0;
     int     iLat0;
@@ -345,9 +349,20 @@ void VrmGrid::SetPolyVal(QPolygonF *I_poly, double I_val)
                 if(Lon <             0            ) {Lon += refineMapEdit.nRefLon; }
                 if(Lon > (refineMapEdit.nRefLon-1)) {Lon -= refineMapEdit.nRefLon; }
 
-                if(refineMapEdit.val[Lon][Lat] < I_val) {   // DIAG for DEMO
-                refineMapEdit.val[Lon][Lat] = I_val;
-                } // DIAG
+                std::cout << " SetPolyVal: I_FillMode = " << I_FillMode.toStdString() << std::endl;
+                if(I_FillMode == "Fill All") {
+                    refineMapEdit.val[Lon][Lat] = I_val;
+                } else if(I_FillMode == "Fill MaxVal") {
+                    if(refineMapEdit.val[Lon][Lat] < I_val) {
+                       refineMapEdit.val[Lon][Lat] = I_val;
+                    }
+                } else if(I_FillMode == "Fill MinVal") {
+                    if(refineMapEdit.val[Lon][Lat] > I_val) {
+                       refineMapEdit.val[Lon][Lat] = I_val;
+                    }
+                } else {
+                    _EXCEPTIONT("POLY FILL: Unknown FillMode");
+                }
             }
         }
     }
@@ -428,10 +443,16 @@ void VrmGrid::SetRectVal(double I_Lon0    , double I_Lat0    ,
 
         if(I_FillMode == "Fill All") {
             refineMapEdit.val[iLon][iLat] = Wval;
-        } else { // "Fill Max"
+        } else if(I_FillMode == "Fill MaxVal") {
             if(refineMapEdit.val[iLon][iLat] < Wval) {
                refineMapEdit.val[iLon][iLat] = Wval;
             }
+        } else if(I_FillMode == "Fill MinVal") {
+            if(refineMapEdit.val[iLon][iLat] > Wval) {
+               refineMapEdit.val[iLon][iLat] = Wval;
+            }
+        } else {
+            _EXCEPTIONT("RECT FILL: Unknown FillMode");
         }
     }
     }

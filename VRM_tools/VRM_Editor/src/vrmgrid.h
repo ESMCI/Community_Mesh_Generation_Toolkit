@@ -64,7 +64,7 @@ public:
                     double I_DltLon  , double I_DltLat  , double I_MyVal, const QString &I_FillMode);
 
 public slots:
-    void SetPolyVal( QPolygonF *I_poly, double I_val);
+    void SetPolyVal( QPolygonF *I_poly, double I_val, const QString &I_FillMode);
 
 
 public:

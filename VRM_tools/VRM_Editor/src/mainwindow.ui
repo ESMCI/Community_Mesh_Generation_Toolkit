@@ -576,6 +576,9 @@
            <underline>false</underline>
           </font>
          </property>
+         <property name="focusPolicy">
+          <enum>Qt::ClickFocus</enum>
+         </property>
          <item>
           <property name="text">
            <string>CubeSquared</string>
@@ -947,7 +950,7 @@
            <x>0</x>
            <y>0</y>
            <width>220</width>
-           <height>223</height>
+           <height>243</height>
           </rect>
          </property>
          <property name="font">
@@ -1244,6 +1247,31 @@
            <string>Reset</string>
           </property>
          </widget>
+         <widget class="QComboBox" name="polyFillMode">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>95</y>
+            <width>80</width>
+            <height>25</height>
+           </rect>
+          </property>
+          <item>
+           <property name="text">
+            <string>Fill MaxVal</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Fill MinVal</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Fill All</string>
+           </property>
+          </item>
+         </widget>
         </widget>
         <widget class="QWidget" name="rectangleEditOpts">
          <property name="geometry">
@@ -1429,7 +1457,12 @@
           </item>
           <item>
            <property name="text">
-            <string>Fill Max</string>
+            <string>Fill MaxVal</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Fill MinVal</string>
            </property>
           </item>
          </widget>
@@ -1642,8 +1675,8 @@
           <rect>
            <x>80</x>
            <y>30</y>
-           <width>116</width>
-           <height>25</height>
+           <width>101</width>
+           <height>22</height>
           </rect>
          </property>
          <property name="font">
@@ -3170,7 +3203,7 @@
      <x>0</x>
      <y>0</y>
      <width>805</width>
-     <height>22</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuActions">
@@ -3179,6 +3212,7 @@
     </property>
     <addaction name="separator"/>
     <addaction name="actionWrite_Exodus_File"/>
+    <addaction name="actionWrite_Refinement_Grid"/>
     <addaction name="separator"/>
     <addaction name="actionRead_Refinement_Map"/>
     <addaction name="actionSave_Refinement_Map"/>
@@ -3232,6 +3266,14 @@
   <action name="actionQuit">
    <property name="text">
     <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionWrite_Refinement_Grid">
+   <property name="text">
+    <string>Write Refinement Grid</string>
+   </property>
+   <property name="toolTip">
+    <string>Write Refinement Grid for manual editing</string>
    </property>
   </action>
  </widget>

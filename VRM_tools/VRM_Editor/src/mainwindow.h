@@ -62,6 +62,8 @@ private slots:
 
     void on_actionWrite_Exodus_File_triggered();
 
+    void on_actionWrite_Refinement_Grid_triggered();
+
     void on_actionRead_Refinement_Map_triggered();
 
     void on_actionSave_Refinement_Map_triggered();
@@ -173,6 +175,8 @@ private slots:
     void on_rectLatMaxVal_valueChanged(double arg1);
 
     void on_applyRectButton_clicked();
+
+    void on_polyFillMode_currentIndexChanged(const QString &arg1);
 
 private:
     Ui::MainWindow *ui;
