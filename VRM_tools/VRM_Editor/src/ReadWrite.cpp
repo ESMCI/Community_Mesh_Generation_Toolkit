@@ -375,9 +375,9 @@ void Read_Refinement_Map( std::string     RefMapName,
     if((rvalMin < 0.)||(rvalMax > 1.)) {
         std::cout << "Read refineMap ERROR: refineMap values are outside of [0,1]" << std::endl;
     }
-    if((rvalMin > 0.)||(rvalMax < 1.)) {
-        std::cout << "Read refineMap ERROR: refineMap values do not span the range [0,1]" << std::endl;
-    }
+//?    if((rvalMin > 0.)||(rvalMax < 1.)) {
+//?        std::cout << "Read refineMap ERROR: refineMap values do not span the range [0,1]" << std::endl;
+//?    }
 
     // close the input file
     //-----------------------
