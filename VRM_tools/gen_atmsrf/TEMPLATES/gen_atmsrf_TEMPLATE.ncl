@@ -40,7 +40,8 @@ begin
   ;=======================================
   srcGridName = srcGridDir+"/"+srcGridFile
   dstGridName = VRscripFile
-  wgtFileName = VRgridPath+"/maps/map_"+srcName+"_TO_"+VRgridName+"_"+interpString+"."+cdate+".nc"
+  system("mkdir -p "  +VRgridPath+"/atmsrf/"            )  ; ensure that the path exists
+  wgtFileName = VRgridPath+"/atmsrf/map_"+srcName+"_TO_"+VRgridName+"_"+interpString+"."+cdate+".nc"
   
   Opt                = True
   Opt@InterpMethod   = InterpMethod
@@ -89,7 +90,6 @@ begin
   ;===============================
   ; Create the output file
   ;===============================
-  system("mkdir -p "  +VRgridPath+"/atmsrf/"            )  ; ensure that the path exists
   system("/bin/rm -f "+VRgridPath+"/atmsrf/"+ATMSRF_File)  ; remove any pre-existing file
   ncdf = addfile(VRgridPath+"/atmsrf/"+ATMSRF_File ,"c")   ; open output netCDF file
   
@@ -109,6 +109,6 @@ begin
   ; cleanup
   ;----------
   print("cleanin up...")
-  ;system("rm "+wgtFileName)
+  system("rm "+wgtFileName)
 
 end

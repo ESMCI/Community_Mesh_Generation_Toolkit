@@ -39,7 +39,8 @@ begin
   ;=======================================
   srcGridName = srcGridDir+"/"+srcGridFile
   dstGridName = VRscripFile
-  wgtFileName = VRgridPath+"/maps/map_"+srcName+"_TO_"+VRgridName+"_"+interpString+"."+cdate+".nc"
+  system("mkdir -p "  +VRgridPath+"/topo/"          )  ; ensure that the path exists
+  wgtFileName = VRgridPath+"/topo/map_"+srcName+"_TO_"+VRgridName+"_"+interpString+"."+cdate+".nc"
   
   Opt                = True
   Opt@InterpMethod   = InterpMethod
@@ -352,7 +353,6 @@ begin
   ; Create the output file
   ;===============================
   TOPO_File   = "topo_"+VRgridName+"_"+interpString+"_"+cdate+".nc"
-  system("mkdir -p "  +VRgridPath+"/topo/"          )  ; ensure that the path exists
   system("/bin/rm -f "+VRgridPath+"/topo/"+TOPO_File)  ; remove any pre-existing file
   ncdf = addfile(VRgridPath+"/topo/"+TOPO_File ,"c")   ; open output netCDF file
   
@@ -392,6 +392,6 @@ begin
   ; cleanup
   ;----------
   print("cleanin up...")
-  ;system("rm "+wgtFileName)
+  system("rm "+wgtFileName)
 
 end

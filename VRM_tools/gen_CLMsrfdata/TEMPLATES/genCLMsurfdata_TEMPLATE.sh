@@ -34,6 +34,7 @@ TMPDIRBASE=${VRrepoPath}/${VRgridName}
 
 #FIX  ESMFBIN_PATH="/glade/u/apps/ch/opt/esmf/7.0.0-ncdfio-mpi/intel/17.0.1/bin/binO/Linux.intel.64.mpi.default"
 ESMFBIN_PATH="/glade/u/apps/ch/opt/esmf/7.1.0r-ncdfio/intel/17.0.1/bin/binO/Linux.intel.64.mpi.default"
+CSMDATA_PATH="/glade/p/cesm/cseg/inputdata"
 CLMVERSION="5_0" # options are 4_0 or 5_0
 DO_SP_ONLY=true   # true (only create SP surdats) or false (create full crop surdats)
 
@@ -55,7 +56,8 @@ MKMAPDATADIR=${CESMROOT}/components/clm/tools/mkmapdata/
 
 cd ${TMPDIR}
 regrid_num_proc=8
-time env ESMFBIN_PATH=${ESMFBIN_PATH} REGRID_PROC=$regrid_num_proc ${MKMAPDATADIR}/mkmapdata.sh -b -v --gridfile ${VRscripFile} --res ${VRgridName} --gridtype global
+#REL2.2 time env ESMFBIN_PATH=${ESMFBIN_PATH} REGRID_PROC=$regrid_num_proc ${MKMAPDATADIR}/mkmapdata.sh -b -v --gridfile ${VRscripFile} --res ${VRgridName} --gridtype global
+time env CSMDATA=${CSMDATA_PATH} REGRID_PROC=$regrid_num_proc ${MKMAPDATADIR}/mkmapdata.sh -b -v --gridfile ${VRscripFile} --res ${VRgridName} --gridtype global
 
 cd ${CESMROOT}/components/clm/tools/mksurfdata_map/
 

@@ -1,0 +1,25 @@
+#
+# shell commands to execute xmlchange commands
+
+#-----------------------------------------
+# Leave'em alone.
+#-----------------------------------------
+./xmlchange --append CLM_BLDNML_OPTS="-no-chk_res"
+
+#-----------------------------------------
+# Set the default time step here:
+#
+#    ATM_NCPL=48  <--> 1800 sec timestep
+#    ATM_NCPL=96  <-->  900 sec timestep
+#    ATM_NCPL=144 <-->  600 sec timestep
+#    ATM_NCPL=288 <-->  300 sec timestep
+# notice a pattern?
+#-----------------------------------------
+./xmlchange ATM_NCPL=144
+
+#-----------------------------------------
+# Set the default pelayout:
+#-----------------------------------------
+./xmlchange NTASKS=1080
+
+
