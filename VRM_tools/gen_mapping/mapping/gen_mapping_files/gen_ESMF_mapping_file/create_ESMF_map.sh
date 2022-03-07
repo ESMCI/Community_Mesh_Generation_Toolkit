@@ -65,7 +65,7 @@ usage() {
   echo '   (necessary for mapping grids with a single point).'
   echo ' --machine (or -mach)'
   echo '   Name of the machine you are running on. Currently supports cheyenne,'
-  echo '   geyser, caldera, and pronghorn. Note that this script will'
+  echo '   geyser, caldera, ronghorn, Fram, Saga and Betzy. Note that this script will'
   echo '   determine the machine name automatically from the hostfile command.'
   echo ' -d'
   echo '   toggle debug-only'
@@ -230,6 +230,9 @@ if [ $MACH == "UNSET" ]; then
     pronghorn* )
       MACH="dav"
     ;;
+  login* )
+      MACH="nris"
+    ;;
     *)
       echo "Can not determine machine name from hostname '$hostname'"
       exit 1
@@ -340,6 +343,21 @@ case $MACH in
     fi
     # need to load module to access ncatted
     module load nco
+  ;;
+## Fram, Saga or Betzy
+  "nris" )
+    module purge
+    module load intel/2018a #intel/17.0.1
+    module load ESMF/7.1.0r-intel-2018a #esmf_libs/7.0.0
+    # MPIEXEC should be mpirun -np
+    if [ -z "$MPIEXEC" ]; then
+      if [ -z "$NCPUS" ]; then
+        NCPUS=1
+      fi
+      MPIEXEC="mpirun -np $NCPUS"
+    fi
+    # need to load module to access ncatted
+    module load NCO/4.7.2-intel-2018a # nco
   ;;
   *)
     echo "Machine $MACH NOT recognized"
