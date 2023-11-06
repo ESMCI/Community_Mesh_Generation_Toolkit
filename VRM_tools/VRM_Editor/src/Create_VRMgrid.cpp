@@ -75,7 +75,7 @@ try {
        CommandLineInt    (MySmoothIterations  ,"smooth_iter"   ,0);
        CommandLineBool   (MyReverseOrientation,"reverse_orient"  );
        CommandLineDouble (MyGridXRotate       ,"x_rotate"      ,0.0);
-       CommandLineDouble (MyGridYRotate       ,"x_rotate"      ,0.0);
+       CommandLineDouble (MyGridYRotate       ,"y_rotate"      ,0.0);
        CommandLineDouble (MyGridLonShift      ,"lon_shift"     ,0.0);
        CommandLineString (MyRefineFile        ,"refine_file"   ,"NULL");
        CommandLineString (MyOutputFile        ,"output"        ,"NULL");
